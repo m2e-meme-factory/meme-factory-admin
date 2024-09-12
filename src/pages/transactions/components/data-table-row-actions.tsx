@@ -5,8 +5,14 @@ import { Button } from '@/components/custom/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator,
-  DropdownMenuShortcut, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger,
+  DropdownMenuItem,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
@@ -18,9 +24,9 @@ interface DataTableRowActionsProps<TData> {
 }
 
 export function DataTableRowActions<TData>({
-                                             row,
-                                           }: DataTableRowActionsProps<TData>) {
-  const transaction: Transaction = transactionSchema.parse(row.original);
+  row,
+}: DataTableRowActionsProps<TData>) {
+  const transaction: Transaction = transactionSchema.parse(row.original)
 
   return (
     <DropdownMenu>

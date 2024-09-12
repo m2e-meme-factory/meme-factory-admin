@@ -1,16 +1,21 @@
 import { z } from 'zod'
 
-export type TransactionType = 'DEPOSIT' | 'WITHDRAWAL' | 'SYSTEM' | 'PAYMENT';
-const TransactionTypeSchema = z.enum(['DEPOSIT', 'WITHDRAWAL', 'SYSTEM', 'PAYMENT']);
+export type TransactionType = 'DEPOSIT' | 'WITHDRAWAL' | 'SYSTEM' | 'PAYMENT'
+const TransactionTypeSchema = z.enum([
+  'DEPOSIT',
+  'WITHDRAWAL',
+  'SYSTEM',
+  'PAYMENT',
+])
 
 export interface TransactionInterface {
-  id: number;
-  projectId: number | null;
-  taskId: number | null;
-  fromUserId: number | null;
-  toUserId: number;
-  amount: number;
-  createdAt: string;
+  id: number
+  projectId: number | null
+  taskId: number | null
+  fromUserId: number | null
+  toUserId: number
+  amount: number
+  createdAt: string
   type: TransactionType
 }
 
@@ -23,6 +28,6 @@ export const transactionSchema = z.object({
   amount: z.number(),
   createdAt: z.string(),
   type: TransactionTypeSchema,
-});
+})
 
-export type Transaction = z.infer<typeof transactionSchema>;
+export type Transaction = z.infer<typeof transactionSchema>

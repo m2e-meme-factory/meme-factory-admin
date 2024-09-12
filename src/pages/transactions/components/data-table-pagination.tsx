@@ -20,8 +20,8 @@ interface DataTablePaginationProps<TData> {
 }
 
 export function DataTablePagination<TData>({
-                                             table,
-                                           }: DataTablePaginationProps<TData>) {
+  table,
+}: DataTablePaginationProps<TData>) {
   return (
     <div className='flex items-center justify-between overflow-auto px-2'>
       <div className='hidden flex-1 text-sm text-muted-foreground sm:block'>

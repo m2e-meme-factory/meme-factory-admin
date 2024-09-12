@@ -32,10 +32,10 @@ interface DataTableFacetedFilterProps<TData, TValue> {
 }
 
 export function DataTableFacetedFilter<TData, TValue>({
-                                                        column,
-                                                        title,
-                                                        options,
-                                                      }: DataTableFacetedFilterProps<TData, TValue>) {
+  column,
+  title,
+  options,
+}: DataTableFacetedFilterProps<TData, TValue>) {
   const facets = column?.getFacetedUniqueValues()
   const selectedValues = new Set(column?.getFilterValue() as string[])
 
