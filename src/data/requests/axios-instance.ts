@@ -1,15 +1,16 @@
 import axios from 'axios'
+import { refreshAccessToken } from '@/data/requests/auth/refresh-access-token.ts'
 
 const BASE_URL = 'http://45.142.122.126:3952/'
 
-const axiosConfig = axios.create({
+const api = axios.create({
   baseURL: BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
 })
 
-axiosConfig.interceptors.request.use(
+api.interceptors.request.use(
   (config) => {
     const accessToken = localStorage.getItem('accessToken')
     if (accessToken) {
@@ -22,7 +23,7 @@ axiosConfig.interceptors.request.use(
   }
 )
 
-axiosConfig.interceptors.response.use(
+api.interceptors.response.use(
   (response) => {
     return response
   },
@@ -33,8 +34,8 @@ axiosConfig.interceptors.response.use(
       const refreshToken = localStorage.getItem('refreshToken')
       if (refreshToken) {
         try {
-          const response = await axios.post(`${BASE_URL}/login/access-token`, {
-            refreshToken,
+          const response = await refreshAccessToken({
+            params: { refreshToken: refreshToken },
           })
           const newAccessToken = response.data.accessToken
           localStorage.setItem('accessToken', newAccessToken)
@@ -49,4 +50,4 @@ axiosConfig.interceptors.response.use(
   }
 )
 
-export default axiosConfig
+export default api
