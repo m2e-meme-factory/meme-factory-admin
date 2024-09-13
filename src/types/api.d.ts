@@ -1,4 +1,5 @@
-import { User, UserInterface } from '@/pages/users/data/schema.ts'
+import { UserInterface } from '@/pages/users/data/schema.ts'
+import { Project } from '@/pages/projects/data/schema.ts'
 
 export type AxiosRequestConfig<Params = undefined> = Params extends undefined
   ? { config?: import('axios').AxiosRequestConfig }
@@ -140,5 +141,58 @@ export interface PatchProjectProgressParams {
 
 // [DELETE] /progress-projects/{id}
 export interface DeleteProjectProgressParam {
+  id: number
+}
+
+// [CREATE] /projects
+export interface CreateTaskDto {
+  title: string
+  description: string
+  price: number
+}
+
+export interface CreateProjectDto {
+  authorId: number
+  title: string
+  description: string
+  bannerUrl: string
+  files: string[]
+  tags: string[]
+  category: string
+  subtasks: CreateTaskDto[]
+}
+
+// [GET] /projects
+export interface GetProjectsResponse {
+  data: Project
+  total: number
+  page: number
+  pageSize: number
+}
+
+// [GET] /project/{id}
+export interface GetProjectParam {
+  id: number
+}
+
+// [PATCH] /project/{id}
+export interface PatchProjectParams {
+  id: number
+  patchProjectDto: PatchProjectDto
+}
+
+export interface PatchProjectDto {
+  title: string
+  description: string
+  bannerUrl: string
+  files: string[]
+  tags: string[]
+  category: string
+  subtasks: CreateTaskDto[]
+  deletedTasks: number[]
+}
+
+// [DELETE] /project/{id}
+export interface DeleteProjectParam {
   id: number
 }
