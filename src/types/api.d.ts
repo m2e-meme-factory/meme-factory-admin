@@ -81,3 +81,36 @@ export interface PatchUserDto {
 export interface DeleteUserParams {
   id: number
 }
+
+// [POST] /transactions
+export interface CreateTransactionDto {
+  projectId: number
+  taskId: number
+  fromUserId: number
+  toUserId: number
+  amount: number
+}
+
+// [GET] /transactions/{id}
+export interface GetTransactionParam {
+  id: number
+}
+
+// [PATCH] /transactions/{id}
+export interface PatchTransactionParams {
+  id: number
+  patchTransactionDto: PatchTransactionDto
+}
+
+export interface PatchTransactionDto {
+  projectId?: number
+  taskId?: number
+  fromUserId?: number
+  toUserId?: number
+  amount?: number
+}
+
+// [DELETE] /transactions/{id}
+export interface DeleteTransactionParam {
+  id: number
+}
