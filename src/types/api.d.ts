@@ -42,8 +42,8 @@ export interface CreateUserDto {
   balance: number
 }
 
-// [GET] /users
-export interface GetUsersParams {
+// Searching params for [GET] /some-entity requests
+export interface SearchParams {
   search?: string
   page?: number
   limit?: number

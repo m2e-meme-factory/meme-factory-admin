@@ -1,11 +1,7 @@
-import {
-  AxiosRequestConfig,
-  GetUsersParams,
-  GetUsersResponse,
-} from '@/types/api'
+import { AxiosRequestConfig, GetUsersResponse, SearchParams } from '@/types/api'
 import api from '@/data/requests/axios-instance.ts'
 
-export type GetUsersConfig = AxiosRequestConfig<GetUsersParams>
+export type GetUsersConfig = AxiosRequestConfig<SearchParams>
 
 export const getUsers = ({ params, config }: GetUsersConfig) => {
   const queryParams = new URLSearchParams()
