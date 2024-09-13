@@ -1,4 +1,4 @@
-import { UserInterface } from '@/pages/users/data/schema.ts'
+import { User, UserInterface } from '@/pages/users/data/schema.ts'
 
 export type AxiosRequestConfig<Params = undefined> = Params extends undefined
   ? { config?: import('axios').AxiosRequestConfig }
@@ -112,5 +112,33 @@ export interface PatchTransactionDto {
 
 // [DELETE] /transactions/{id}
 export interface DeleteTransactionParam {
+  id: number
+}
+
+// [POST] /progress-projects
+export interface CreateProjectProgressDto {
+  userId: number
+  projectId: number
+}
+
+// [GET] /progress-projects/{id}
+export interface GetProjectProgressParam {
+  id: number
+}
+
+// [PATCH] /progress-projects/{id}
+export interface PatchProjectProgressDto {
+  userId?: number
+  projectId?: number
+  status?: 'pending' | 'accepted' | 'rejected'
+}
+
+export interface PatchProjectProgressParams {
+  id: number
+  patchProgressProjectDto: PatchProjectProgressDto
+}
+
+// [DELETE] /progress-projects/{id}
+export interface DeleteProjectProgressParam {
   id: number
 }
