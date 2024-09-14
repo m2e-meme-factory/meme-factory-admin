@@ -1,9 +1,12 @@
 import { UserInterface } from '@/pages/users/data/schema.ts'
 import { Project } from '@/pages/projects/data/schema.ts'
+import { TransactionInterface } from '@/pages/transactions/data/schema.ts'
 
 export type AxiosRequestConfig<Params = undefined> = Params extends undefined
   ? { config?: import('axios').AxiosRequestConfig }
   : { params: Params; config?: import('axios').AxiosRequestConfig }
+
+export type SortingDirection = 'asc' | 'desc'
 
 // [POST] auth/login/access-token
 export interface RefreshAccessTokenDto {
@@ -45,11 +48,10 @@ export interface CreateUserDto {
 
 // Searching params for [GET] /some-entity requests
 export interface SearchParams {
-  search?: string
   page?: number
   limit?: number
   sortBy?: string[]
-  sortOrder?: 'asc' | 'desc'
+  sortOrder?: SortingDirection[]
 }
 
 export interface GetUsersResponse {
@@ -81,6 +83,20 @@ export interface PatchUserDto {
 // [DELETE] /users/{id}
 export interface DeleteUserParams {
   id: number
+}
+
+// [GET] /transactions
+export interface GetTransactionsParams extends SearchParams {
+  projectId?: number
+  taskId?: number
+  fromUserId?: number
+  toUserId?: number
+  type?: string
+}
+
+export interface GetTransactionsResponse {
+  total: number
+  transactions: TransactionInterface[]
 }
 
 // [POST] /transactions

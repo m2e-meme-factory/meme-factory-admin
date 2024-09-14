@@ -10,11 +10,18 @@ export const createQueryParams = (params?: SearchParams): string => {
   const queryParams = new URLSearchParams()
 
   if (params) {
-    if (params.search) queryParams.append('search', params.search)
     if (params.page) queryParams.append('page', params.page.toString())
     if (params.limit) queryParams.append('limit', params.limit.toString())
-    if (params.sortBy) queryParams.append('sortBy', params.sortBy.join(','))
-    if (params.sortOrder) queryParams.append('sortOrder', params.sortOrder)
+
+    if (params.sortBy && params.sortBy.length > 0) {
+      params.sortBy.forEach((value) => queryParams.append('sortBy', value))
+    }
+
+    if (params.sortOrder && params.sortOrder.length > 0) {
+      params.sortOrder.forEach((value) =>
+        queryParams.append('sortOrder', value)
+      )
+    }
   }
 
   return queryParams.toString() ? `?${queryParams.toString()}` : ''

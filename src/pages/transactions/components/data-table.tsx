@@ -6,14 +6,12 @@ import {
   VisibilityState,
   flexRender,
   getCoreRowModel,
-  getFacetedRowModel,
-  getFacetedUniqueValues,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
+  PaginationState,
 } from '@tanstack/react-table'
-
 import {
   Table,
   TableBody,
@@ -22,18 +20,19 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-
 import { DataTablePagination } from '../components/data-table-pagination'
 import { DataTableToolbar } from '../components/data-table-toolbar'
+import { useQuery } from '@tanstack/react-query'
+import { getTransactions } from '@/data/requests/transaction/get-transactions'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
-  data: TData[]
+  fallbackData: TData[]
 }
 
 export function DataTable<TData, TValue>({
   columns,
-  data,
+  fallbackData,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] =
@@ -42,28 +41,53 @@ export function DataTable<TData, TValue>({
     []
   )
   const [sorting, setSorting] = React.useState<SortingState>([])
+  const [pagination, setPagination] = React.useState<PaginationState>({
+    pageSize: 10,
+    pageIndex: 0,
+  })
+
+  const {
+    data: transactionData,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ['txData', pagination, sorting, columnFilters],
+    queryFn: () =>
+      getTransactions({
+        params: {
+          page: pagination.pageIndex + 1,
+          limit: pagination.pageSize,
+          sortBy: sorting.map((s) => s.id),
+          sortOrder: sorting.map((s) => (s.desc ? 'desc' : 'asc')),
+        },
+      }),
+    select: (data) => data,
+  })
 
   const table = useReactTable({
-    data,
+    data: (transactionData?.data.transactions as TData[]) ?? fallbackData,
     columns,
     state: {
       sorting,
       columnVisibility,
       rowSelection,
       columnFilters,
+      pagination,
     },
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
+    onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getFacetedRowModel: getFacetedRowModel(),
-    getFacetedUniqueValues: getFacetedUniqueValues(),
   })
+
+  if (isLoading) return <div>Loading...</div>
+  if (error) return <div>Error: {error.message}</div>
 
   return (
     <div className='space-y-4'>
@@ -73,18 +97,16 @@ export function DataTable<TData, TValue>({
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id} colSpan={header.colSpan}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  )
-                })}
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id} colSpan={header.colSpan}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </TableHead>
+                ))}
               </TableRow>
             ))}
           </TableHeader>

@@ -3,7 +3,6 @@ import { Search } from '@/components/search.tsx'
 import ThemeSwitch from '@/components/theme-switch.tsx'
 import { UserNav } from '@/components/user-nav.tsx'
 import { DataTable } from './components/data-table'
-import { transactions } from './data/transactions'
 import { columns } from './components/columns'
 
 export default function Transactions() {
@@ -28,7 +27,7 @@ export default function Transactions() {
           </div>
         </div>
         <div className='-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-x-12 lg:space-y-0'>
-          <DataTable data={transactions} columns={columns} />
+          <DataTable fallbackData={[]} columns={columns} />
         </div>
       </Layout.Body>
     </Layout>
