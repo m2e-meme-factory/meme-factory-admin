@@ -6,6 +6,7 @@ import { DataTableViewOptions } from '../components/data-table-view-options'
 
 import { txTypes } from '../data/data'
 import { DataTableFacetedFilter } from './data-table-faceted-filter'
+import { DataTableInputFilter } from '@/pages/transactions/components/data-table-input-filter.tsx'
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>
@@ -23,8 +24,32 @@ export function DataTableToolbar<TData>({
           {table.getColumn('type') && (
             <DataTableFacetedFilter
               column={table.getColumn('type')}
-              title='tx Types'
+              title='Type'
               options={txTypes}
+            />
+          )}
+          {table.getColumn('projectId') && (
+            <DataTableInputFilter
+              column={table.getColumn('projectId')}
+              title='Project'
+            />
+          )}
+          {table.getColumn('taskId') && (
+            <DataTableInputFilter
+              column={table.getColumn('taskId')}
+              title='Task'
+            />
+          )}
+          {table.getColumn('fromUserId') && (
+            <DataTableInputFilter
+              column={table.getColumn('fromUserId')}
+              title='From'
+            />
+          )}
+          {table.getColumn('toUserId') && (
+            <DataTableInputFilter
+              column={table.getColumn('toUserId')}
+              title='To'
             />
           )}
         </div>

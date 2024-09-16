@@ -24,11 +24,19 @@ import { DataTablePagination } from '../components/data-table-pagination'
 import { DataTableToolbar } from '../components/data-table-toolbar'
 import { useQuery } from '@tanstack/react-query'
 import { getTransactions } from '@/data/requests/transaction/get-transactions'
+import { Loader2 } from 'lucide-react'
+import { useToast } from '@/components/ui/use-toast.ts'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   fallbackData: TData[]
 }
+
+const Spinner = () => (
+  <div className='mt-10 flex h-24 items-center justify-center'>
+    <Loader2 className='h-8 w-8 animate-spin text-primary' />
+  </div>
+)
 
 export function DataTable<TData, TValue>({
   columns,
@@ -46,21 +54,50 @@ export function DataTable<TData, TValue>({
     pageIndex: 0,
   })
 
+  const { toast } = useToast()
+
   const {
     data: transactionData,
     isLoading,
     error,
   } = useQuery({
     queryKey: ['txData', pagination, sorting, columnFilters],
-    queryFn: () =>
-      getTransactions({
+    queryFn: () => {
+      const projectIdFilter = columnFilters.find(
+        (column) => column.id === 'projectId'
+      )
+      const taskIdFilter = columnFilters.find(
+        (column) => column.id === 'taskId'
+      )
+      const fromUserIdFilter = columnFilters.find(
+        (column) => column.id === 'fromUserId'
+      )
+      const toUserIdFilter = columnFilters.find(
+        (column) => column.id === 'toUserId'
+      )
+      const txTypeFilter = columnFilters.find((column) => column.id === 'type')
+
+      return getTransactions({
         params: {
           page: pagination.pageIndex + 1,
           limit: pagination.pageSize,
           sortBy: sorting.map((s) => s.id),
           sortOrder: sorting.map((s) => (s.desc ? 'desc' : 'asc')),
+          projectId: projectIdFilter
+            ? Number(projectIdFilter.value)
+            : undefined,
+          taskId: taskIdFilter ? Number(taskIdFilter.value) : undefined,
+          fromUserId: fromUserIdFilter
+            ? Number(fromUserIdFilter.value)
+            : undefined,
+          toUserId: toUserIdFilter ? Number(toUserIdFilter.value) : undefined,
+          type:
+            txTypeFilter && typeof txTypeFilter.value === 'string'
+              ? txTypeFilter.value
+              : undefined,
         },
-      }),
+      })
+    },
     select: (data) => data,
   })
 
@@ -86,8 +123,17 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
   })
 
-  if (isLoading) return <div>Loading...</div>
-  if (error) return <div>Error: {error.message}</div>
+  console.log(transactionData?.data.transactions as TData[], 'data')
+  console.log('Filters:', columnFilters)
+  console.log('Table Data:', table.getRowModel().rows)
+
+  if (isLoading) return <Spinner />
+  if (error) {
+    toast({
+      variant: 'destructive',
+      title: 'Uh oh! Something went wrong.',
+    })
+  }
 
   return (
     <div className='space-y-4'>

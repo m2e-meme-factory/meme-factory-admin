@@ -34,9 +34,9 @@ export const columns: ColumnDef<Transaction>[] = [
   {
     accessorKey: 'id',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Transaction' />
+      <DataTableColumnHeader column={column} title='Id' />
     ),
-    cell: ({ row }) => <div className='w-[80px]'>{row.getValue('id')}</div>,
+    cell: ({ row }) => <div className='w-[40px]'>{row.getValue('id')}</div>,
     enableSorting: false,
     enableHiding: false,
   },
@@ -48,8 +48,8 @@ export const columns: ColumnDef<Transaction>[] = [
     cell: ({ row }) => (
       <div className='w-[80px]'>{row.getValue('projectId')}</div>
     ),
-    enableSorting: false,
-    enableHiding: false,
+    enableSorting: true,
+    enableHiding: true,
   },
   {
     accessorKey: 'taskId',
@@ -97,7 +97,7 @@ export const columns: ColumnDef<Transaction>[] = [
       <DataTableColumnHeader column={column} title='CreatedAt' />
     ),
     cell: ({ row }) => (
-      <div className='w-[80px]'>{row.getValue('createdAt')}</div>
+      <div className='w-[120px]'>{row.getValue('createdAt')}</div>
     ),
     enableSorting: true,
     enableHiding: true,
