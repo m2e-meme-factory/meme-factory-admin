@@ -123,10 +123,6 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
   })
 
-  console.log(transactionData?.data.transactions as TData[], 'data')
-  console.log('Filters:', columnFilters)
-  console.log('Table Data:', table.getRowModel().rows)
-
   if (isLoading) return <Spinner />
   if (error) {
     toast({
