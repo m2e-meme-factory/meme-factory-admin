@@ -5,6 +5,6 @@ import { ProjectProgressInterface } from '@/pages/project-progresses/data/schema
 
 export type GetProgressesConfig = AxiosRequestConfig<SearchParams>
 export const getProgresses = ({ params, config }: GetProgressesConfig) => {
-  const url = `/progress-projects${createQueryParams(params)}`
+  const url = `/progress-projects${createQueryParams(params as Record<string, unknown>)}`
   return api.get<ProjectProgressInterface[]>(url, config)
 }
