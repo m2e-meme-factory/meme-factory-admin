@@ -14,7 +14,7 @@ export interface TransactionInterface {
   taskId: number | null
   fromUserId: number | null
   toUserId: number
-  amount: number
+  amount: string
   createdAt: string
   type: TransactionType
 }
@@ -25,7 +25,7 @@ export const transactionSchema = z.object({
   taskId: z.number().nullable(),
   fromUserId: z.number().nullable(),
   toUserId: z.number(),
-  amount: z.number(),
+  amount: z.string(),
   createdAt: z.string(),
   type: TransactionTypeSchema,
 })

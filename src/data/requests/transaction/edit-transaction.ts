@@ -4,4 +4,8 @@ import api from '@/data/requests/axios-instance.ts'
 
 export type EditTransactionConfig = AxiosRequestConfig<PatchTransactionParams>
 export const editTransaction = ({ params, config }: EditTransactionConfig) =>
-  api.patch<TransactionInterface>(`/transactions/${params.id}`, config)
+  api.patch<TransactionInterface>(
+    `/transactions/${params.id}`,
+    params.patchTransactionDto,
+    config
+  )

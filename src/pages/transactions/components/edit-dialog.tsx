@@ -27,18 +27,27 @@ import {
   SelectValue,
 } from '@/components/ui/select.tsx'
 import { Button } from '@/components/custom/button.tsx'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { editTransaction } from '@/data/requests/transaction/edit-transaction.ts'
+import { useToast } from '@/components/ui/use-toast.ts'
 
 const editTransactionSchema = z
   .object({
     projectId: z
       .number()
       .int()
-      .positive('Project ID must be a positive number'),
-    taskId: z.number().int().positive('Task ID must be a positive number'),
+      .positive('Project ID must be a positive number')
+      .optional(), // делаем поле необязательным
+    taskId: z
+      .number()
+      .int()
+      .positive('Task ID must be a positive number')
+      .optional(),
     fromUserId: z
       .number()
       .int()
-      .positive('From User ID must be a positive number'),
+      .positive('From User ID must be a positive number')
+      .optional(),
     toUserId: z.number().int().positive('To User ID must be a positive number'),
     amount: z.number().positive('Amount must be a positive number'),
     type: z.enum(['SYSTEM', 'WITHDRAWAL', 'DEPOSIT', 'PAYMENT']),
@@ -59,6 +68,27 @@ export function EditDialog({
   isOpen: boolean
   onClose: () => void
 }) {
+  const queryClient = useQueryClient()
+  const { toast } = useToast()
+  const { mutate } = useMutation({
+    mutationFn: editTransaction,
+    onSuccess: () => {
+      toast({
+        variant: 'default',
+        title: 'Transaction updated',
+      })
+    },
+    onError: () => {
+      toast({
+        variant: 'destructive',
+        title: 'Uh oh! Something went wrong.',
+      })
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['txData'] })
+    },
+  })
+
   const form = useForm<EditTransactionSchema>({
     resolver: zodResolver(editTransactionSchema),
     defaultValues: {
@@ -66,7 +96,7 @@ export function EditDialog({
       taskId: transaction.taskId ?? undefined,
       fromUserId: transaction.fromUserId ?? undefined,
       toUserId: transaction.toUserId,
-      amount: transaction.amount,
+      amount: Number(transaction.amount), // todo: type dismatch in db
       type: transaction.type ?? 'SYSTEM',
     },
   })
@@ -74,19 +104,30 @@ export function EditDialog({
   const onSubmit = (data: EditTransactionSchema) => {
     const parsedData = {
       ...data,
-      projectId: Number(data.projectId),
-      taskId: Number(data.taskId),
-      fromUserId: Number(data.fromUserId),
+      projectId: isNaN(Number(data.projectId))
+        ? undefined
+        : Number(data.projectId),
+      taskId: isNaN(Number(data.taskId)) ? undefined : Number(data.taskId),
+      fromUserId: isNaN(Number(data.fromUserId))
+        ? undefined
+        : Number(data.fromUserId),
       toUserId: Number(data.toUserId),
       amount: Number(data.amount),
     }
 
     try {
       editTransactionSchema.parse(parsedData)
-      console.log('Submitting edited transaction:', parsedData)
+      console.log(parsedData)
+      mutate({
+        params: { id: transaction.id, patchTransactionDto: parsedData },
+      })
       onClose()
     } catch (err) {
-      console.error('Validation failed:', err)
+      console.log(err)
+      toast({
+        variant: 'destructive',
+        title: 'Uh oh! Transaction data is invalid',
+      })
     }
   }
 
@@ -96,7 +137,7 @@ export function EditDialog({
       taskId: transaction.taskId ?? undefined,
       fromUserId: transaction.fromUserId ?? undefined,
       toUserId: transaction.toUserId,
-      amount: transaction.amount,
+      amount: Number(transaction.amount),
       type: transaction.type ?? 'SYSTEM',
     })
   }

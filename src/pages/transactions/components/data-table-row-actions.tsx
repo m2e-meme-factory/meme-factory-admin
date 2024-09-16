@@ -50,6 +50,7 @@ export function DataTableRowActions<TData>({
         onClose={() => setIsEditOpen(false)}
       />
       <DeleteDialog
+        transactionId={transaction.id}
         isOpen={isDeleteOpen}
         onClose={() => setIsDeleteOpen(false)}
       />
