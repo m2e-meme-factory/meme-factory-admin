@@ -19,18 +19,27 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/custom/button'
+import { useToast } from '@/components/ui/use-toast.ts'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { createTransaction } from '@/data/requests/transaction/create-transaction.ts'
 
 const createTransactionSchema = z
   .object({
     projectId: z
       .number()
       .int()
-      .positive('Project ID must be a positive number'),
-    taskId: z.number().int().positive('Task ID must be a positive number'),
+      .positive('Project ID must be a positive number')
+      .optional(),
+    taskId: z
+      .number()
+      .int()
+      .positive('Task ID must be a positive number')
+      .optional(),
     fromUserId: z
       .number()
       .int()
-      .positive('From User ID must be a positive number'),
+      .positive('From User ID must be a positive number')
+      .optional(),
     toUserId: z.number().int().positive('To User ID must be a positive number'),
     amount: z.number().positive('Amount must be a positive number'),
   })
@@ -38,6 +47,7 @@ const createTransactionSchema = z
     message: 'From User ID and To User ID must be different',
     path: ['toUserId'],
   })
+
 type CreateTransactionSchema = z.infer<typeof createTransactionSchema>
 
 export function CreateDialog({
@@ -47,6 +57,27 @@ export function CreateDialog({
   isOpen: boolean
   onClose: () => void
 }) {
+  const { toast } = useToast()
+  const queryClient = useQueryClient()
+  const { mutate } = useMutation({
+    mutationFn: createTransaction,
+    onSuccess: () => {
+      toast({
+        variant: 'default',
+        title: 'Transaction created',
+      })
+    },
+    onError: () => {
+      toast({
+        variant: 'destructive',
+        title: 'Uh oh! Something went wrong.',
+      })
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['txData'] })
+    },
+  })
+
   const form = useForm<CreateTransactionSchema>({
     resolver: zodResolver(createTransactionSchema),
     defaultValues: {
@@ -61,9 +92,11 @@ export function CreateDialog({
   const onSubmit = (data: CreateTransactionSchema) => {
     const parsedData = {
       ...data,
-      projectId: Number(data.projectId),
-      taskId: Number(data.taskId),
-      fromUserId: Number(data.fromUserId),
+      projectId:
+        data.projectId === undefined ? undefined : Number(data.projectId),
+      taskId: data.taskId === undefined ? undefined : Number(data.taskId),
+      fromUserId:
+        data.fromUserId === undefined ? undefined : Number(data.fromUserId),
       toUserId: Number(data.toUserId),
       amount: Number(data.amount),
     }
@@ -71,6 +104,7 @@ export function CreateDialog({
     try {
       createTransactionSchema.parse(parsedData)
       console.log('Submitting new transaction:', parsedData)
+      mutate({ params: parsedData })
       onClose()
     } catch (err) {
       console.error('Validation failed:', err)
@@ -97,11 +131,13 @@ export function CreateDialog({
                   <FormLabel>Project ID</FormLabel>
                   <FormControl>
                     <Input
-                      type='number'
+                      type='text'
                       {...field}
                       onChange={(e) =>
                         field.onChange(
-                          e.target.value ? Number(e.target.value) : undefined
+                          e.target.value === ''
+                            ? undefined
+                            : Number(e.target.value)
                         )
                       }
                     />
@@ -118,11 +154,13 @@ export function CreateDialog({
                   <FormLabel>Task ID</FormLabel>
                   <FormControl>
                     <Input
-                      type='number'
+                      type='text'
                       {...field}
                       onChange={(e) =>
                         field.onChange(
-                          e.target.value ? Number(e.target.value) : undefined
+                          e.target.value === ''
+                            ? undefined
+                            : Number(e.target.value)
                         )
                       }
                     />
@@ -139,11 +177,13 @@ export function CreateDialog({
                   <FormLabel>From User ID</FormLabel>
                   <FormControl>
                     <Input
-                      type='number'
+                      type='text'
                       {...field}
                       onChange={(e) =>
                         field.onChange(
-                          e.target.value ? Number(e.target.value) : undefined
+                          e.target.value === ''
+                            ? undefined
+                            : Number(e.target.value)
                         )
                       }
                     />
@@ -160,13 +200,9 @@ export function CreateDialog({
                   <FormLabel>To User ID</FormLabel>
                   <FormControl>
                     <Input
-                      type='number'
+                      type='text'
                       {...field}
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value ? Number(e.target.value) : undefined
-                        )
-                      }
+                      onChange={(e) => field.onChange(Number(e.target.value))}
                     />
                   </FormControl>
                   <FormMessage />
@@ -181,14 +217,9 @@ export function CreateDialog({
                   <FormLabel>Amount</FormLabel>
                   <FormControl>
                     <Input
-                      type='number'
-                      step='0.01'
+                      type='text'
                       {...field}
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value ? Number(e.target.value) : undefined
-                        )
-                      }
+                      onChange={(e) => field.onChange(Number(e.target.value))}
                     />
                   </FormControl>
                   <FormMessage />
