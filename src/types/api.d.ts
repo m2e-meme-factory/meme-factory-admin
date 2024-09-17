@@ -1,4 +1,4 @@
-import { UserInterface } from '@/pages/users/data/schema.ts'
+import { User, UserInterface } from '@/pages/users/data/schema.ts'
 import { Project } from '@/pages/projects/data/schema.ts'
 import { TransactionInterface } from '@/pages/transactions/data/schema.ts'
 
@@ -47,9 +47,12 @@ export interface CreateUserDto {
 }
 
 // Searching params for [GET] /some-entity requests
-export interface SearchParams {
+export interface PaginationSettings {
   page?: number
   limit?: number
+}
+
+export interface SearchParams extends PaginationSettings {
   sortBy?: string[]
   sortOrder?: SortingDirection[]
 }
@@ -101,9 +104,9 @@ export interface GetTransactionsResponse {
 
 // [POST] /transactions
 export interface CreateTransactionDto {
-  projectId: number
-  taskId: number
-  fromUserId: number
+  projectId?: number
+  taskId?: number
+  fromUserId?: number
   toUserId: number
   amount: number
 }
@@ -211,4 +214,73 @@ export interface PatchProjectDto {
 // [DELETE] /project/{id}
 export interface DeleteProjectParam {
   id: number
+}
+
+// [POST] /auto-task
+export interface CreateAutoTaskDto {
+  title: string
+  description: string
+  reward: number
+  url: string
+  isIntegrated: boolean
+}
+
+export interface AutotaskDto {
+  id: number
+  title: string
+  description: string
+  reward: number
+  url?: string
+  isIntegrated: boolean
+  createdAt: string
+}
+
+// [GET] /auto-task/applications
+export interface GetAutotaskApplicationsParams extends PaginationSettings {
+  userId?: number
+  taskId?: number
+}
+
+export interface GetAutotaskApplicationsResponse {
+  applications: AutotaskApplicationDto[]
+  total: number
+}
+
+export interface AutotaskApplicationDto {
+  id: number
+  userId: number
+  taskId: number
+  isConfirmed: boolean
+  createdAt: Date
+  task: AutotaskDto
+  user: UserInterface
+}
+
+// [PUT] /auto-task/{id}/update
+export interface PatchAutotaskParams {
+  id: number
+  patchAutotaskDto: PatchAutotaskDto
+}
+
+export interface PatchAutotaskDto {
+  title: string
+  description: string
+  reward: number
+  url: string
+  isIntegrated: boolean
+}
+
+// [GET] /auto-task
+export interface AutotaskSearchParams extends SearchParams {
+  title?: string
+  description?: string
+  rewardFrom?: number
+  rewardTo?: number
+  url?: string
+  isIntegrated?: boolean
+}
+
+export interface GetAutotaskResponse {
+  total: number
+  tasks: AutotaskDto[]
 }
