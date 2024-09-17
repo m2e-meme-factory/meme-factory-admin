@@ -1,5 +1,8 @@
-import { User, UserInterface } from '@/pages/users/data/schema.ts'
-import { Project } from '@/pages/projects/data/schema.ts'
+import { UserInterface } from '@/pages/users/data/schema.ts'
+import {
+  ProjectInterface,
+  ProjectStatus,
+} from '@/pages/projects/data/schema.ts'
 import { TransactionInterface } from '@/pages/transactions/data/schema.ts'
 
 export type AxiosRequestConfig<Params = undefined> = Params extends undefined
@@ -183,10 +186,17 @@ export interface CreateProjectDto {
 
 // [GET] /projects
 export interface GetProjectsResponse {
-  data: Project
+  projects: ProjectInterface[]
   total: number
-  page: number
-  pageSize: number
+}
+
+export interface GetProjectsSearchParams extends SearchParams {
+  authorId?: number
+  title?: string
+  description?: string
+  tags?: string
+  category?: string
+  status?: ProjectStatus
 }
 
 // [GET] /project/{id}
