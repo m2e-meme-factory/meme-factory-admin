@@ -104,6 +104,8 @@ export function DataTable<TData, TValue>({
   const table = useReactTable({
     data: (transactionData?.data.transactions as TData[]) ?? fallbackData,
     columns,
+    manualSorting: true,
+    manualFiltering: true,
     state: {
       sorting,
       columnVisibility,
