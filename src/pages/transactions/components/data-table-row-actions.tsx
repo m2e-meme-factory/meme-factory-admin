@@ -9,8 +9,8 @@ import {
 } from '@/components/ui/dropdown-menu.tsx'
 import { DotsHorizontalIcon } from '@radix-ui/react-icons'
 import { Row } from '@tanstack/react-table'
-import { DeleteDialog } from '@/pages/transactions/components/delete-dialog.tsx'
-import { EditDialog } from '@/pages/transactions/components/edit-dialog.tsx'
+import { DeleteDialog } from '@/pages/transactions/components/dialogs/delete-dialog.tsx'
+import { EditDialog } from '@/pages/transactions/components/dialogs/edit-dialog.tsx'
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>

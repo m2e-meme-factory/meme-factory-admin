@@ -1,10 +1,10 @@
 import { ColumnDef } from '@tanstack/react-table'
 
 import { Checkbox } from '@/components/ui/checkbox'
-import { DataTableColumnHeader } from './data-table-column-header'
 import { DataTableRowActions } from './data-table-row-actions'
 
 import { Transaction } from '../data/schema'
+import { DataTableColumnHeader } from '@/components/custom/data-table/data-table-column-header.tsx'
 
 export const columns: ColumnDef<Transaction>[] = [
   {

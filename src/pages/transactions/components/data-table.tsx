@@ -20,7 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { DataTablePagination } from '../components/data-table-pagination'
+import { DataTablePagination } from '@/components/custom/data-table/data-table-pagination.tsx'
 import { DataTableToolbar } from '../components/data-table-toolbar'
 import { useQuery } from '@tanstack/react-query'
 import { getTransactions } from '@/data/requests/transaction/get-transactions'

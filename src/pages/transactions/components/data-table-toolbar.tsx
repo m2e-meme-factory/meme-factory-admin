@@ -2,12 +2,12 @@ import { Cross2Icon, PlusIcon } from '@radix-ui/react-icons'
 import { Table } from '@tanstack/react-table'
 
 import { Button } from '@/components/custom/button'
-import { DataTableViewOptions } from '../components/data-table-view-options'
+import { DataTableViewOptions } from '../../../components/custom/data-table/data-table-view-options.tsx'
 
 import { txTypes } from '../data/data'
-import { DataTableFacetedFilter } from './data-table-faceted-filter'
-import { DataTableInputFilter } from '@/pages/transactions/components/data-table-input-filter.tsx'
-import { CreateDialog } from '@/pages/transactions/components/create-dialog.tsx'
+import { DataTableFacetedFilter } from '@/components/custom/data-table/data-table-faceted-filter.tsx'
+import { DataTableInputFilter } from '@/components/custom/data-table/data-table-input-filter.tsx'
+import { CreateDialog } from '@/pages/transactions/components/dialogs/create-dialog.tsx'
 import { useState } from 'react'
 
 interface DataTableToolbarProps<TData> {

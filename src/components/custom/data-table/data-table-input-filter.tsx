@@ -1,15 +1,15 @@
 import * as React from 'react'
 import { Column } from '@tanstack/react-table'
 import { PlusCircledIcon } from '@radix-ui/react-icons'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/custom/button'
+import { Badge } from '@/components/ui/badge.tsx'
+import { Button } from '@/components/custom/button.tsx'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover'
-import { Separator } from '@/components/ui/separator'
-import { Input } from '@/components/ui/input'
+} from '@/components/ui/popover.tsx'
+import { Separator } from '@/components/ui/separator.tsx'
+import { Input } from '@/components/ui/input.tsx'
 
 interface DataTableInputFilterProps<TData, TValue> {
   column?: Column<TData, TValue>

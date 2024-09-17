@@ -3,11 +3,10 @@ import { Table } from '@tanstack/react-table'
 
 import { Button } from '@/components/custom/button'
 import { Input } from '@/components/ui/input'
-import { DataTableViewOptions } from '../components/data-table-view-options'
 
 import { priorities, statuses } from '../data/data'
-import { DataTableFacetedFilter } from './data-table-faceted-filter'
-
+import { DataTableFacetedFilter } from '@/components/custom/data-table/data-table-faceted-filter.tsx'
+import { DataTableViewOptions } from '@/components/custom/data-table/data-table-view-options.tsx'
 interface DataTableToolbarProps<TData> {
   table: Table<TData>
 }
