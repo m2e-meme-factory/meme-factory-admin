@@ -4,7 +4,7 @@ import {
   IconUsers,
   IconTransactionBitcoin,
   IconTrendingUp,
-  IconBox,
+  IconBox, IconLogin,
 } from '@tabler/icons-react'
 
 export interface NavLink {
@@ -55,4 +55,10 @@ export const sidelinks: SideLink[] = [
     href: '/users',
     icon: <IconUsers size={18} />,
   },
+  {
+    title: 'Sign In',
+    label: '',
+    href: '/sign-in',
+    icon: <IconLogin size={18} />
+  }
 ]
