@@ -5,6 +5,7 @@ import {
 } from '@/pages/projects/data/schema.ts'
 import { TransactionInterface } from '@/pages/transactions/data/schema.ts'
 import { ProjectProgressInterface } from '@/pages/project-progresses/data/schema.ts'
+import { AutotaskInterface } from '@/pages/autotasks/data/schema.ts'
 
 export type AxiosRequestConfig<Params = undefined> = Params extends undefined
   ? { config?: import('axios').AxiosRequestConfig }
@@ -258,16 +259,6 @@ export interface CreateAutoTaskDto {
   isIntegrated: boolean
 }
 
-export interface AutotaskDto {
-  id: number
-  title: string
-  description: string
-  reward: number
-  url?: string
-  isIntegrated: boolean
-  createdAt: string
-}
-
 // [GET] /auto-task/applications
 export interface GetAutotaskApplicationsParams extends PaginationSettings {
   userId?: number
@@ -315,5 +306,5 @@ export interface AutotaskSearchParams extends SearchParams {
 
 export interface GetAutotaskResponse {
   total: number
-  tasks: AutotaskDto[]
+  tasks: AutotaskInterface[]
 }

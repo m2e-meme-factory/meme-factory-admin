@@ -28,7 +28,7 @@ export const sidelinks: SideLink[] = [
   {
     title: 'Autotasks',
     label: '',
-    href: '/tasks',
+    href: '/autotasks',
     icon: <IconChecklist size={18} />,
   },
   {

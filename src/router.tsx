@@ -46,9 +46,9 @@ const router = createBrowserRouter([
         }),
       },
       {
-        path: 'tasks',
+        path: 'autotasks',
         lazy: async () => ({
-          Component: (await import('@/pages/tasks')).default,
+          Component: (await import('@/pages/autotasks')).default,
         }),
       },
       {
