@@ -37,7 +37,7 @@ export const ProgressEventDetailsDataSchema = z.object({
 
 export interface Event {
   id: number
-  progressProjectId: string
+  progressProjectId: number
   projectId: number
   userId: number
   role: UserRole
@@ -50,7 +50,7 @@ export interface Event {
 
 export const ProgressEventDataSchema = z.object({
   id: z.number(),
-  progressProjectId: z.string(),
+  progressProjectId: z.number(),
   projectId: z.number(),
   userId: z.number(),
   role: z.nativeEnum(UserRole),
@@ -58,7 +58,7 @@ export const ProgressEventDataSchema = z.object({
   eventType: z.nativeEnum(EventType),
   description: z.string().optional(),
   createdAt: z.string(),
-  details: ProgressEventDetailsDataSchema.optional(),
+  details: ProgressEventDetailsDataSchema.optional().nullable(),
 })
 
 export interface ProjectProgressInterface {

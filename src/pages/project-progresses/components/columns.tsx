@@ -3,6 +3,7 @@ import { Progress } from '@/pages/project-progresses/data/schema.ts'
 import { Checkbox } from '@/components/ui/checkbox.tsx'
 import { DataTableColumnHeader } from '@/components/custom/data-table/data-table-column-header.tsx'
 import { StatusBadge } from '@/components/custom/status-badge.tsx'
+import { DataTableRowActions } from '@/pages/project-progresses/components/data-table-row-actions.tsx'
 
 export const columns: ColumnDef<Progress>[] = [
   {
@@ -78,5 +79,9 @@ export const columns: ColumnDef<Progress>[] = [
     ),
     enableSorting: false,
     enableHiding: true,
+  },
+  {
+    id: 'actions',
+    cell: ({ row }) => <DataTableRowActions row={row} />,
   },
 ]
