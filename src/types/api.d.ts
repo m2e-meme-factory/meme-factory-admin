@@ -1,4 +1,4 @@
-import { UserInterface } from '@/pages/users/data/schema.ts'
+import { UserInterface, UserRole } from '@/pages/users/data/schema.ts'
 import {
   ProjectInterface,
   ProjectStatus,
@@ -59,6 +59,16 @@ export interface PaginationSettings {
 export interface SearchParams extends PaginationSettings {
   sortBy?: string[]
   sortOrder?: SortingDirection[]
+}
+
+// [GET] /users
+
+export interface UsersSearchParams extends SearchParams {
+  search?: string
+  isBanned?: boolean
+  isVerified?: boolean
+  refCode?: string
+  role?: UserRole
 }
 
 export interface GetUsersResponse {
