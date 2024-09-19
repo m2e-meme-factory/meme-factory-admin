@@ -68,6 +68,7 @@ export function DataTable<TData, TValue>({
         (column) => column.id === 'status'
       )
       const tagsFilter = columnFilters.find((column) => column.id === 'tags')
+      const titleFilter = columnFilters.find((column) => column.id === 'title')
 
       return getProjects({
         params: {
@@ -86,6 +87,10 @@ export function DataTable<TData, TValue>({
           category:
             categoryFilter && typeof categoryFilter.value === 'string'
               ? categoryFilter.value
+              : undefined,
+          title:
+            titleFilter && typeof titleFilter.value === 'string'
+              ? titleFilter.value
               : undefined,
         },
       })
