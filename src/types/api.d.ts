@@ -4,6 +4,7 @@ import {
   ProjectStatus,
 } from '@/pages/projects/data/schema.ts'
 import { TransactionInterface } from '@/pages/transactions/data/schema.ts'
+import { ProjectProgressInterface } from '@/pages/project-progresses/data/schema.ts'
 
 export type AxiosRequestConfig<Params = undefined> = Params extends undefined
   ? { config?: import('axios').AxiosRequestConfig }
@@ -142,6 +143,18 @@ export interface DeleteTransactionParam {
 export interface CreateProjectProgressDto {
   userId: number
   projectId: number
+}
+
+// [GET] /progress-projects
+export interface ProjectProgressSearchParams extends SearchParams {
+  userId?: number
+  projectId?: number
+  status?: 'pending' | 'accepted' | 'rejected'
+}
+
+export interface GetProjectProgressesResponse {
+  total: number
+  progressProjects: ProjectProgressInterface[]
 }
 
 // [GET] /progress-projects/{id}
