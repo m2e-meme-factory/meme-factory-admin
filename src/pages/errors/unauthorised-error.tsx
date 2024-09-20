@@ -19,7 +19,7 @@ export default function UnauthorisedError() {
           <Button variant='outline' onClick={() => navigate(-1)}>
             Go Back
           </Button>
-          <Button onClick={() => navigate('/')}>Back to Home</Button>
+          <Button onClick={() => navigate('/sign-in')}>Sign in</Button>
         </div>
       </div>
     </div>

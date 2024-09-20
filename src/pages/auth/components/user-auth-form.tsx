@@ -15,8 +15,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/custom/button'
 import { PasswordInput } from '@/components/custom/password-input'
 import { cn } from '@/lib/utils'
-import { useMutation } from '@tanstack/react-query'
-import { login } from '@/data/requests/auth/auth-login.ts'
+import { useAuth } from '@/hooks/use-auth.ts'
 
 interface UserAuthFormProps extends HTMLAttributes<HTMLDivElement> {}
 
@@ -31,17 +30,7 @@ const formSchema = z.object({
 })
 
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
-  const loginMutation = useMutation({
-    mutationFn: login,
-    onSuccess: (data) => {
-      console.log('Successfully logged in: ', data)
-      localStorage.setItem('accessToken', data.data.accessToken)
-    },
-    onError: (error) => {
-      console.error('Error logging in: ', error)
-    },
-    retry: 3,
-  })
+  const { loginAction } = useAuth()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -52,7 +41,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   })
 
   function onSubmit(data: z.infer<typeof formSchema>) {
-    loginMutation.mutate({ params: { ...data } })
+    loginAction({ ...data })
   }
 
   return (
@@ -94,7 +83,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
                 </FormItem>
               )}
             />
-            <Button className='mt-2' loading={loginMutation.isPending}>
+            <Button className='mt-2' type='submit'>
               Login
             </Button>
           </div>
