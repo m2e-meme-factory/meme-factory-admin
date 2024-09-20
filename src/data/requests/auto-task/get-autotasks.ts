@@ -8,6 +8,6 @@ import { createQueryParams } from '@/lib/utils.ts'
 
 export type GetAutotasksConfig = AxiosRequestConfig<AutotaskSearchParams>
 export const getAutotask = ({ params, config }: GetAutotasksConfig) => {
-  const url = `/auto-task?${createQueryParams(params as Record<string, unknown>)}`
+  const url = `/auto-task${createQueryParams(params as Record<string, unknown>)}`
   return api.get<GetAutotaskResponse>(url, config)
 }

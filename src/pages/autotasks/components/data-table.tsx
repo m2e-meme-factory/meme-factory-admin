@@ -93,11 +93,15 @@ export function DataTable<TData, TValue>({
     select: (data) => data,
   })
 
+  const totalItems = autotaskData?.data?.total ?? 0
+
   const table = useReactTable({
     data: (autotaskData?.data.tasks as TData[]) ?? fallbackData,
     columns,
     manualSorting: true,
     manualFiltering: true,
+    manualPagination: true,
+    pageCount: Math.ceil(totalItems / pagination.pageSize),
     state: {
       sorting,
       columnVisibility,

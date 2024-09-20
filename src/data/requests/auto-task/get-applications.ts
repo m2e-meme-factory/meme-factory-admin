@@ -12,6 +12,6 @@ export const getAutotaskApplications = ({
   params,
   config,
 }: GetAutotaskApplicationsConfig) => {
-  const url = `/auto-task/applications?${createQueryParams(params as Record<string, unknown>)}`
+  const url = `/auto-task/applications${createQueryParams(params as Record<string, unknown>)}`
   return api.get<GetAutotaskApplicationsResponse>(url, config)
 }

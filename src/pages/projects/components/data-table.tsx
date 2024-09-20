@@ -55,7 +55,7 @@ export function DataTable<TData, TValue>({
   const { toast } = useToast()
 
   const {
-    data: transactionData,
+    data: projectsData,
     isLoading,
     error,
   } = useQuery({
@@ -98,11 +98,15 @@ export function DataTable<TData, TValue>({
     select: (data) => data,
   })
 
+  const totalItems = projectsData?.data?.total ?? 0
+
   const table = useReactTable({
-    data: (transactionData?.data.projects as TData[]) ?? fallbackData,
+    data: (projectsData?.data.projects as TData[]) ?? fallbackData,
     columns,
     manualSorting: true,
     manualFiltering: true,
+    manualPagination: true,
+    pageCount: Math.ceil(totalItems / pagination.pageSize),
     state: {
       sorting,
       columnVisibility,

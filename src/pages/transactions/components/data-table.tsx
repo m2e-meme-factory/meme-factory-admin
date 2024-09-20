@@ -101,11 +101,15 @@ export function DataTable<TData, TValue>({
     select: (data) => data,
   })
 
+  const totalItems = transactionData?.data?.total ?? 0
+
   const table = useReactTable({
     data: (transactionData?.data.transactions as TData[]) ?? fallbackData,
     columns,
     manualSorting: true,
     manualFiltering: true,
+    manualPagination: true,
+    pageCount: Math.ceil(totalItems / pagination.pageSize),
     state: {
       sorting,
       columnVisibility,

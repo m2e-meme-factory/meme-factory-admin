@@ -80,12 +80,15 @@ export function DataTable<TData, TValue>({
   })
 
   const { toast } = useToast()
+  const totalItems = progresses?.data?.total ?? 0
 
   const table = useReactTable({
     data: (progresses?.data.progressProjects as TData[]) ?? fallbackData,
     columns,
     manualSorting: true,
     manualFiltering: true,
+    manualPagination: true,
+    pageCount: Math.ceil(totalItems / pagination.pageSize),
     state: {
       sorting,
       columnVisibility,
