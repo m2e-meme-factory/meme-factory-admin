@@ -8,26 +8,27 @@ import {
 } from '@/components/ui/dialog.tsx'
 import { Button } from '@/components/custom/button.tsx'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { deleteTransaction } from '@/data/requests/transaction/delete-transaction.ts'
 import { useToast } from '@/components/ui/use-toast.ts'
+import { unbanUser } from '@/data/requests/user/unban-user.ts'
 
-export function DeleteDialog({
+export function UnbanDialog({
   isOpen,
   onClose,
-  transactionId,
+  userId,
 }: {
   isOpen: boolean
   onClose: () => void
-  transactionId: number
+  userId: number
 }) {
   const { toast } = useToast()
   const queryClient = useQueryClient()
-  const { mutate } = useMutation({
-    mutationFn: deleteTransaction,
+
+  const unbanMutation = useMutation({
+    mutationFn: unbanUser,
     onSuccess: () => {
       toast({
         variant: 'default',
-        title: 'Transaction deleted',
+        title: 'User unbanned',
       })
     },
     onError: () => {
@@ -37,16 +38,12 @@ export function DeleteDialog({
       })
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['txData'] })
+      queryClient.invalidateQueries({ queryKey: ['users'] })
     },
   })
 
-  const handleDelete = () => {
-    mutate({
-      params: {
-        id: transactionId,
-      },
-    })
+  const handleUnban = () => {
+    unbanMutation.mutate({ params: { id: userId } })
     onClose()
   }
 
@@ -56,16 +53,15 @@ export function DeleteDialog({
         <DialogHeader>
           <DialogTitle>Confirm Deletion</DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete this transaction? This action cannot
-            be undone.
+            Are you sure you want to unban this user?
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <Button variant='outline' onClick={onClose}>
             Cancel
           </Button>
-          <Button variant='destructive' onClick={handleDelete}>
-            Delete
+          <Button variant='secondary' onClick={handleUnban}>
+            Unban
           </Button>
         </DialogFooter>
       </DialogContent>

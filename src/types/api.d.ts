@@ -98,9 +98,15 @@ export interface PatchUserDto {
   balance?: number
 }
 
-// [DELETE] /users/{id}
-export interface DeleteUserParams {
+// [PUT] /users/{id}/ban(unban)
+export interface UserIdParam {
   id: number
+}
+
+// [PUT] /users/{id}/role
+export interface ChangeRoleParams {
+  id: number
+  role: string
 }
 
 // [GET] /transactions
