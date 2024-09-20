@@ -4,8 +4,26 @@ import ThemeSwitch from '@/components/theme-switch.tsx'
 import { UserNav } from '@/components/user-nav.tsx'
 import { DataTable } from './components/data-table'
 import { columns } from './components/columns'
+import { Breadcrumb, BreadcrumbItem } from '@/components/custom/breadcrumb.tsx'
+import { Link } from 'react-router-dom'
+import { IconChevronRight } from '@tabler/icons-react'
 
 export default function Projects() {
+  const items = [
+    { title: 'Home', href: '/' },
+    { title: 'Progresses', href: '/progresses' },
+  ].map(({ href, title }) => (
+    <BreadcrumbItem key={title}>
+      {href ? (
+        <Link className='text-muted-foreground hover:text-foreground' to={href}>
+          {title}
+        </Link>
+      ) : (
+        <span className='text-muted-foreground'>{title}</span>
+      )}
+    </BreadcrumbItem>
+  ))
+
   return (
     <Layout>
       {/* ===== Top Heading ===== */}
@@ -18,6 +36,11 @@ export default function Projects() {
       </Layout.Header>
 
       <Layout.Body>
+        <div className='mb-5'>
+          <Breadcrumb separator={<IconChevronRight size={18} />}>
+            {items}
+          </Breadcrumb>
+        </div>
         <div className='mb-2 flex items-center justify-between space-y-2'>
           <div>
             <h2 className='text-2xl font-bold tracking-tight'>Welcome back!</h2>
