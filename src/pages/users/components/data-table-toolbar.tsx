@@ -1,4 +1,4 @@
-import { Cross2Icon } from '@radix-ui/react-icons'
+import { Cross2Icon, PlusIcon } from '@radix-ui/react-icons'
 import { Table } from '@tanstack/react-table'
 import { Button } from '@/components/custom/button'
 import { Input } from '@/components/ui/input'
@@ -7,6 +7,7 @@ import { DataTableViewOptions } from '@/components/custom/data-table/data-table-
 import { useState, useCallback, useMemo, ChangeEvent } from 'react'
 import { USER_ROLE_OPTIONS } from '@/pages/users/data/user-roles'
 import { BOOLEAN_OPTIONS } from '@/pages/users/data/boolean-options'
+import { CreateDialog } from '@/pages/users/components/dialogs/create-dialog.tsx'
 
 function debounce<T extends (...args: string[]) => void>(
   func: T,
@@ -32,7 +33,7 @@ export function DataTableToolbar<TData>({
   table,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0
-
+  const [createModalVisible, setCreateModalVisible] = useState(false)
   const [titleFilterInput, setTitleFilterInput] = useState<string>(
     (table.getColumn('username')?.getFilterValue() as string) ?? ''
   )
@@ -123,7 +124,22 @@ export function DataTableToolbar<TData>({
           <Cross2Icon className='ml-2 h-4 w-4' />
         </Button>
       )}
-      <DataTableViewOptions table={table} />
+      <div className='flex flex-row'>
+        <Button
+          variant='outline'
+          size='sm'
+          className='ml-auto mr-3 hidden h-8 lg:flex'
+          onClick={() => setCreateModalVisible(true)}
+        >
+          <PlusIcon className='mr-2 h-4 w-4' />
+          Create
+        </Button>
+        <CreateDialog
+          onClose={() => setCreateModalVisible(false)}
+          isOpen={createModalVisible}
+        />
+        <DataTableViewOptions table={table} />
+      </div>
     </div>
   )
 }

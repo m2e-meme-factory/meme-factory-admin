@@ -45,7 +45,7 @@ export interface CreateUserDto {
   telegramId: string
   username: string
   isBaned: boolean
-  isVerified: string
+  isVerified: boolean
   refCode: string
   role: string
   balance: number

@@ -63,7 +63,7 @@ export const userSchema = z.object({
   balance: z.string(),
   wasOpened: z.boolean(),
   isSended: z.boolean(),
-  userInfo: UserInfoSchema,
+  userInfo: UserInfoSchema.nullable(),
   MetaTag: z.array(MetaTagSchema),
 })
 
