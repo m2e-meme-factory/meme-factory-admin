@@ -35,7 +35,7 @@ export const columns: ColumnDef<Autotask>[] = [
       <DataTableColumnHeader column={column} title='Id' />
     ),
     cell: ({ row }) => <div className='w-[40px]'>{row.getValue('id')}</div>,
-    enableSorting: false,
+    enableSorting: true,
     enableHiding: false,
   },
   {
@@ -52,6 +52,8 @@ export const columns: ColumnDef<Autotask>[] = [
         </div>
       )
     },
+    enableSorting: true,
+    enableHiding: false,
   },
   {
     accessorKey: 'reward',
@@ -59,7 +61,7 @@ export const columns: ColumnDef<Autotask>[] = [
       <DataTableColumnHeader column={column} title='Reward' />
     ),
     cell: ({ row }) => <div className='w-[40px]'>{row.getValue('reward')}</div>,
-    enableSorting: false,
+    enableSorting: true,
     enableHiding: true,
   },
   {
@@ -72,7 +74,7 @@ export const columns: ColumnDef<Autotask>[] = [
         {row.getValue('isIntegrated') ? '✅' : '❌'}
       </div>
     ),
-    enableSorting: false,
+    enableSorting: true,
     enableHiding: true,
   },
   {
@@ -83,7 +85,7 @@ export const columns: ColumnDef<Autotask>[] = [
     cell: ({ row }) => (
       <div className='w-[80px]'>{row.getValue('createdAt')}</div>
     ),
-    enableSorting: false,
+    enableSorting: true,
     enableHiding: true,
   },
   {

@@ -35,7 +35,7 @@ export const columns: ColumnDef<User>[] = [
       <DataTableColumnHeader column={column} title='Id' />
     ),
     cell: ({ row }) => <div className='w-[20px]'>{row.getValue('id')}</div>,
-    enableSorting: false,
+    enableSorting: true,
     enableHiding: false,
   },
   {
@@ -46,7 +46,7 @@ export const columns: ColumnDef<User>[] = [
     cell: ({ row }) => (
       <div className='w-[90px]'>{row.getValue('telegramId')}</div>
     ),
-    enableSorting: false,
+    enableSorting: true,
     enableHiding: false,
   },
   {
@@ -63,7 +63,7 @@ export const columns: ColumnDef<User>[] = [
         </div>
       )
     },
-    enableSorting: false,
+    enableSorting: true,
     enableHiding: false,
   },
   {
@@ -72,7 +72,7 @@ export const columns: ColumnDef<User>[] = [
       <DataTableColumnHeader column={column} title='Role' />
     ),
     cell: ({ row }) => <div className='w-[60px]'>{row.getValue('role')}</div>,
-    enableSorting: false,
+    enableSorting: true,
     enableHiding: true,
   },
   {
@@ -85,7 +85,7 @@ export const columns: ColumnDef<User>[] = [
         {row.getValue('isBaned') ? '✅' : '❌'}
       </div>
     ),
-    enableSorting: false,
+    enableSorting: true,
     enableHiding: true,
   },
   {
@@ -98,7 +98,7 @@ export const columns: ColumnDef<User>[] = [
         {row.getValue('isVerified') ? '✅' : '❌'}
       </div>
     ),
-    enableSorting: false,
+    enableSorting: true,
     enableHiding: true,
   },
   {
@@ -109,7 +109,7 @@ export const columns: ColumnDef<User>[] = [
     cell: ({ row }) => (
       <div className='flex space-x-2'>{row.getValue('refCode')}</div>
     ),
-    enableSorting: false,
+    enableSorting: true,
     enableHiding: true,
   },
   {

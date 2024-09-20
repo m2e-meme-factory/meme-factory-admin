@@ -35,7 +35,7 @@ export const columns: ColumnDef<Project>[] = [
       <DataTableColumnHeader column={column} title='Id' />
     ),
     cell: ({ row }) => <div className='w-[40px]'>{row.getValue('id')}</div>,
-    enableSorting: false,
+    enableSorting: true,
     enableHiding: false,
   },
   {
@@ -62,7 +62,7 @@ export const columns: ColumnDef<Project>[] = [
       ></DataTableColumnHeader>
     ),
     cell: ({ row }) => <div className='w-[80px]'>{row.getValue('status')}</div>,
-    enableSorting: false,
+    enableSorting: true,
     enableHiding: false,
   },
   {
@@ -73,7 +73,7 @@ export const columns: ColumnDef<Project>[] = [
     cell: ({ row }) => (
       <div className='w-[80px]'>{row.getValue('category')}</div>
     ),
-    enableSorting: false,
+    enableSorting: true,
     enableHiding: true,
   },
   {
@@ -82,7 +82,7 @@ export const columns: ColumnDef<Project>[] = [
       <DataTableColumnHeader column={column} title='Tags' />
     ),
     cell: ({ row }) => <div className='w-[80px]'>{row.getValue('tags')}</div>,
-    enableSorting: false,
+    enableSorting: true,
     enableHiding: true,
   },
   {
@@ -93,7 +93,7 @@ export const columns: ColumnDef<Project>[] = [
     cell: ({ row }) => (
       <div className='w-[40px]'>{row.getValue('authorId')}</div>
     ),
-    enableSorting: false,
+    enableSorting: true,
     enableHiding: false,
   },
   {

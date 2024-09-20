@@ -36,7 +36,7 @@ export const columns: ColumnDef<Progress>[] = [
       <DataTableColumnHeader column={column} title='Id' />
     ),
     cell: ({ row }) => <div className='w-[40px]'>{row.getValue('id')}</div>,
-    enableSorting: false,
+    enableSorting: true,
     enableHiding: false,
   },
   {
@@ -45,7 +45,7 @@ export const columns: ColumnDef<Progress>[] = [
       <DataTableColumnHeader column={column} title='User' />
     ),
     cell: ({ row }) => <div className='w-[40px]'>{row.getValue('userId')}</div>,
-    enableSorting: false,
+    enableSorting: true,
     enableHiding: true,
   },
   {
@@ -56,17 +56,19 @@ export const columns: ColumnDef<Progress>[] = [
     cell: ({ row }) => (
       <div className='w-[40px]'>{row.getValue('projectId')}</div>
     ),
-    enableSorting: false,
+    enableSorting: true,
     enableHiding: true,
   },
   {
     accessorKey: 'status',
-    header: 'Status',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Status' />
+    ),
     cell: ({ row }) => {
       const status = row.getValue('status') as string
       return <StatusBadge status={status} />
     },
-    enableSorting: false,
+    enableSorting: true,
     enableHiding: true,
   },
   {
@@ -77,7 +79,7 @@ export const columns: ColumnDef<Progress>[] = [
     cell: ({ row }) => (
       <div className='w-[80px]'>{row.getValue('createdAt')}</div>
     ),
-    enableSorting: false,
+    enableSorting: true,
     enableHiding: true,
   },
   {
