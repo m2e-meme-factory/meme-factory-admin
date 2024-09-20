@@ -6,7 +6,7 @@ import { DataTableFacetedFilter } from '@/components/custom/data-table/data-tabl
 import { DataTableViewOptions } from '@/components/custom/data-table/data-table-view-options'
 import { useState, useCallback, useMemo, ChangeEvent } from 'react'
 import { BOOLEAN_OPTIONS } from '@/pages/users/data/boolean-options.ts'
-import { DataTableInputFilter } from '@/components/custom/data-table/data-table-input-filter.tsx'
+import { DataTableRangeFilter } from '@/components/custom/data-table/data-table-range-filter.tsx'
 
 function debounce<T extends (...args: string[]) => void>(
   func: T,
@@ -72,9 +72,9 @@ export function DataTableToolbar<TData>({
             />
           )}
           {table.getColumn('reward') && (
-            <DataTableInputFilter
+            <DataTableRangeFilter
               column={table.getColumn('reward')}
-              title='Reward'
+              title='Price Range'
             />
           )}
         </div>

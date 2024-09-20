@@ -23,21 +23,20 @@ import {
 import { DataTablePagination } from '@/components/custom/data-table/data-table-pagination.tsx'
 import { DataTableToolbar } from '../components/data-table-toolbar'
 import { useQuery } from '@tanstack/react-query'
-import { Loader2 } from 'lucide-react'
 import { useToast } from '@/components/ui/use-toast.ts'
 import { useState } from 'react'
 import { getAutotask } from '@/data/requests/auto-task/get-autotasks.ts'
+import { Spinner } from '@/components/custom/spinner.tsx'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   fallbackData: TData[]
 }
 
-const Spinner = () => (
-  <div className='mt-10 flex h-24 items-center justify-center'>
-    <Loader2 className='h-8 w-8 animate-spin text-primary' />
-  </div>
-)
+interface RewardValue {
+  from?: number
+  to?: number
+}
 
 export function DataTable<TData, TValue>({
   columns,
@@ -64,6 +63,7 @@ export function DataTable<TData, TValue>({
       const rewardFilter = columnFilters.find(
         (column) => column.id === 'reward'
       )
+      const rewardFilterValue = rewardFilter?.value as RewardValue
       const integratedFilter = columnFilters.find(
         (column) => column.id === 'isIntegrated'
       )
@@ -84,14 +84,20 @@ export function DataTable<TData, TValue>({
               ? titleFilter.value
               : undefined,
           rewardFrom:
-            rewardFilter && typeof rewardFilter.value === 'string'
-              ? Number(rewardFilter.value)
+            rewardFilterValue && typeof rewardFilterValue.from === 'number'
+              ? Number(rewardFilterValue.from)
+              : undefined,
+          rewardTo:
+            rewardFilterValue && typeof rewardFilterValue.to === 'number'
+              ? Number(rewardFilterValue.to)
               : undefined,
         },
       })
     },
     select: (data) => data,
   })
+
+  console.log(columnFilters)
 
   const totalItems = autotaskData?.data?.total ?? 0
 
