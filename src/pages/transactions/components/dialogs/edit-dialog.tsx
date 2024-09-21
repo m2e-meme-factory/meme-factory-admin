@@ -30,26 +30,25 @@ import { Button } from '@/components/custom/button.tsx'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { editTransaction } from '@/data/requests/transaction/edit-transaction.ts'
 import { useToast } from '@/components/ui/use-toast.ts'
+import { PatchTransactionDto } from '@/types/api'
 
 const editTransactionSchema = z
   .object({
-    projectId: z
-      .number()
-      .int()
-      .positive('Project ID must be a positive number')
-      .optional(), // делаем поле необязательным
-    taskId: z
-      .number()
-      .int()
-      .positive('Task ID must be a positive number')
-      .optional(),
-    fromUserId: z
-      .number()
-      .int()
-      .positive('From User ID must be a positive number')
-      .optional(),
-    toUserId: z.number().int().positive('To User ID must be a positive number'),
-    amount: z.number().positive('Amount must be a positive number'),
+    projectId: z.string().regex(/^$|^[1-9][0-9]*$/, {
+      message: 'Project ID must be empty or a number starting from 1',
+    }),
+    taskId: z.string().regex(/^$|^[1-9][0-9]*$/, {
+      message: 'Task ID must be empty or a number starting from 1',
+    }),
+    fromUserId: z.string().regex(/^$|^[1-9][0-9]*$/, {
+      message: 'FromUser ID must be empty or a number starting from 1',
+    }),
+    toUserId: z.string().regex(/^[1-9][0-9]*$/, {
+      message: 'To User ID must be a number starting from 1',
+    }),
+    amount: z.string().regex(/^[1-9][0-9]*$/, {
+      message: 'Amount must be a number starting from 1',
+    }),
     type: z.enum(['SYSTEM', 'WITHDRAWAL', 'DEPOSIT', 'PAYMENT']),
   })
   .refine((data) => data.fromUserId !== data.toUserId, {
@@ -89,41 +88,53 @@ export function EditDialog({
     },
   })
 
+  const handleClose = () => {
+    resetToDefaultValues()
+    onClose()
+  }
+
   const form = useForm<EditTransactionSchema>({
     resolver: zodResolver(editTransactionSchema),
     defaultValues: {
-      projectId: transaction.projectId ?? undefined,
-      taskId: transaction.taskId ?? undefined,
-      fromUserId: transaction.fromUserId ?? undefined,
-      toUserId: transaction.toUserId,
-      amount: Number(transaction.amount), // todo: type dismatch in db
+      projectId: transaction.projectId?.toString() ?? '',
+      taskId: transaction.taskId?.toString() ?? '',
+      fromUserId: transaction.fromUserId?.toString() ?? '',
+      toUserId: transaction.toUserId.toString(),
+      amount: transaction.amount.toString(),
       type: transaction.type ?? 'SYSTEM',
     },
   })
 
-  const onSubmit = (data: EditTransactionSchema) => {
-    const parsedData = {
-      ...data,
-      projectId: isNaN(Number(data.projectId))
-        ? undefined
-        : Number(data.projectId),
-      taskId: isNaN(Number(data.taskId)) ? undefined : Number(data.taskId),
-      fromUserId: isNaN(Number(data.fromUserId))
-        ? undefined
-        : Number(data.fromUserId),
-      toUserId: Number(data.toUserId),
-      amount: Number(data.amount),
-    }
+  const resetToDefaultValues = () => {
+    form.reset({
+      projectId: transaction.projectId?.toString() ?? '',
+      taskId: transaction.taskId?.toString() ?? '',
+      fromUserId: transaction.fromUserId?.toString() ?? '',
+      toUserId: transaction.toUserId.toString(),
+      amount: transaction.amount.toString(),
+      type: transaction.type ?? 'SYSTEM',
+    })
+  }
 
-    try {
-      editTransactionSchema.parse(parsedData)
-      console.log(parsedData)
+  const onSubmit = (values: EditTransactionSchema) => {
+    const checkedData = editTransactionSchema.safeParse(values)
+    if (checkedData.success) {
+      const data = checkedData.data
+      const parsedData: PatchTransactionDto = {
+        ...data,
+        projectId: data.projectId !== '' ? Number(data.projectId) : undefined,
+        toUserId: Number(data.toUserId),
+        fromUserId:
+          data.fromUserId !== '' ? Number(data.fromUserId) : undefined,
+        amount: Number(data.amount),
+        taskId: data.taskId !== '' ? Number(data.taskId) : undefined,
+      }
+      console.log('Editing the transaction:', parsedData)
       mutate({
         params: { id: transaction.id, patchTransactionDto: parsedData },
       })
       onClose()
-    } catch (err) {
-      console.log(err)
+    } else {
       toast({
         variant: 'destructive',
         title: 'Uh oh! Transaction data is invalid',
@@ -131,19 +142,8 @@ export function EditDialog({
     }
   }
 
-  const resetToDefaultValues = () => {
-    form.reset({
-      projectId: transaction.projectId ?? undefined,
-      taskId: transaction.taskId ?? undefined,
-      fromUserId: transaction.fromUserId ?? undefined,
-      toUserId: transaction.toUserId,
-      amount: Number(transaction.amount),
-      type: transaction.type ?? 'SYSTEM',
-    })
-  }
-
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Edit Transaction</DialogTitle>
@@ -163,10 +163,7 @@ export function EditDialog({
                     <Input
                       type='text'
                       {...field}
-                      onChange={(e) =>
-                        !isNaN(Number(e.target.value)) &&
-                        field.onChange(Number(e.target.value))
-                      }
+                      onChange={(e) => field.onChange(e.target.value)}
                     />
                   </FormControl>
                   <FormMessage />
@@ -183,10 +180,7 @@ export function EditDialog({
                     <Input
                       type='text'
                       {...field}
-                      onChange={(e) =>
-                        !isNaN(Number(e.target.value)) &&
-                        field.onChange(Number(e.target.value))
-                      }
+                      onChange={(e) => field.onChange(e.target.value)}
                     />
                   </FormControl>
                   <FormMessage />
@@ -203,10 +197,7 @@ export function EditDialog({
                     <Input
                       type='text'
                       {...field}
-                      onChange={(e) =>
-                        !isNaN(Number(e.target.value)) &&
-                        field.onChange(Number(e.target.value))
-                      }
+                      onChange={(e) => field.onChange(e.target.value)}
                     />
                   </FormControl>
                   <FormMessage />
@@ -223,10 +214,7 @@ export function EditDialog({
                     <Input
                       type='text'
                       {...field}
-                      onChange={(e) =>
-                        !isNaN(Number(e.target.value)) &&
-                        field.onChange(Number(e.target.value))
-                      }
+                      onChange={(e) => field.onChange(e.target.value)}
                     />
                   </FormControl>
                   <FormMessage />
@@ -243,10 +231,7 @@ export function EditDialog({
                     <Input
                       type='text'
                       {...field}
-                      onChange={(e) =>
-                        !isNaN(Number(e.target.value)) &&
-                        field.onChange(Number(e.target.value))
-                      }
+                      onChange={(e) => field.onChange(e.target.value)}
                     />
                   </FormControl>
                   <FormMessage />

@@ -34,12 +34,14 @@ import { Button } from '@/components/custom/button'
 
 const createUserSchema = z.object({
   telegramId: z.string().regex(/^\d+$/, 'Telegram ID must contain only digits'),
-  username: z.string(),
+  username: z.string().min(1, 'Must be 1 or more characters long'),
   isBaned: z.boolean(),
   isVerified: z.boolean(),
-  refCode: z.string(),
+  refCode: z.string().length(36, 'Must be 36 characters long'),
   role: z.nativeEnum(UserRole),
-  balance: z.number().int().positive('Amount must be a positive number'),
+  balance: z.string().regex(/^[1-9][0-9]*$/, {
+    message: 'Balance must be a number starting from 1',
+  }),
 })
 
 type CreateUserSchema = z.infer<typeof createUserSchema>
@@ -81,27 +83,53 @@ export function CreateDialog({
       isVerified: false,
       refCode: '',
       role: UserRole.CREATOR,
-      balance: 0,
+      balance: '',
     },
   })
 
-  const onSubmit = (data: CreateUserSchema) => {
-    const parsedData: CreateUserDto = {
-      ...data,
-    }
+  const resetToDefaultValues = () => {
+    form.reset({
+      telegramId: '',
+      username: '',
+      isBaned: false,
+      isVerified: false,
+      refCode: '',
+      role: UserRole.CREATOR,
+      balance: '',
+    })
+  }
 
-    try {
-      createUserSchema.parse(data)
+  const handleClose = () => {
+    resetToDefaultValues()
+    onClose()
+  }
+
+  const onSubmit = (values: CreateUserSchema) => {
+    const checkedData = createUserSchema.safeParse(values)
+    if (checkedData.success) {
+      const data = checkedData.data
+      const parsedData: CreateUserDto = {
+        telegramId: data.telegramId,
+        username: data.username,
+        isBaned: data.isBaned,
+        isVerified: data.isVerified,
+        refCode: data.refCode,
+        role: data.role,
+        balance: Number(data.balance),
+      }
       console.log('Submitting new user:', parsedData)
       mutate({ params: parsedData })
       onClose()
-    } catch (err) {
-      console.error('Validation failed:', err)
+    } else {
+      toast({
+        variant: 'destructive',
+        title: 'Uh oh! User data is invalid',
+      })
     }
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create New User</DialogTitle>
@@ -117,9 +145,13 @@ export function CreateDialog({
               name='telegramId'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Telegram ID</FormLabel>
+                  <FormLabel>TelegramId</FormLabel>
                   <FormControl>
-                    <Input type='text' {...field} />
+                    <Input
+                      type='text'
+                      {...field}
+                      onChange={(e) => field.onChange(e.target.value)}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -132,7 +164,11 @@ export function CreateDialog({
                 <FormItem>
                   <FormLabel>Username</FormLabel>
                   <FormControl>
-                    <Input type='text' {...field} />
+                    <Input
+                      type='text'
+                      {...field}
+                      onChange={(e) => field.onChange(e.target.value)}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -191,9 +227,13 @@ export function CreateDialog({
               name='refCode'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Ref Code</FormLabel>
+                  <FormLabel>RefCode</FormLabel>
                   <FormControl>
-                    <Input type='text' {...field} />
+                    <Input
+                      type='text'
+                      {...field}
+                      onChange={(e) => field.onChange(e.target.value)}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -234,9 +274,9 @@ export function CreateDialog({
                   <FormLabel>Balance</FormLabel>
                   <FormControl>
                     <Input
-                      type='number'
+                      type='text'
                       {...field}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
+                      onChange={(e) => field.onChange(e.target.value)}
                     />
                   </FormControl>
                   <FormMessage />

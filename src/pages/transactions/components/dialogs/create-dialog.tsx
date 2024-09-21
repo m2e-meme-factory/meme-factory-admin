@@ -22,26 +22,25 @@ import { Button } from '@/components/custom/button.tsx'
 import { useToast } from '@/components/ui/use-toast.ts'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createTransaction } from '@/data/requests/transaction/create-transaction.ts'
+import { CreateTransactionDto } from '@/types/api'
 
 const createTransactionSchema = z
   .object({
-    projectId: z
-      .number()
-      .int()
-      .positive('Project ID must be a positive number')
-      .optional(),
-    taskId: z
-      .number()
-      .int()
-      .positive('Task ID must be a positive number')
-      .optional(),
-    fromUserId: z
-      .number()
-      .int()
-      .positive('From User ID must be a positive number')
-      .optional(),
-    toUserId: z.number().int().positive('To User ID must be a positive number'),
-    amount: z.number().positive('Amount must be a positive number'),
+    projectId: z.string().regex(/^$|^[1-9][0-9]*$/, {
+      message: 'Project ID must be empty or a number starting from 1',
+    }),
+    taskId: z.string().regex(/^$|^[1-9][0-9]*$/, {
+      message: 'Task ID must be empty or a number starting from 1',
+    }),
+    fromUserId: z.string().regex(/^$|^[1-9][0-9]*$/, {
+      message: 'From User ID must be empty or a number starting from 1',
+    }),
+    toUserId: z.string().regex(/^[1-9][0-9]*$/, {
+      message: 'To User ID must be a number starting from 1',
+    }),
+    amount: z.string().regex(/^[1-9][0-9]*$/, {
+      message: 'Amount must be a number starting from 1',
+    }),
   })
   .refine((data) => data.fromUserId !== data.toUserId, {
     message: 'From User ID and To User ID must be different',
@@ -78,41 +77,57 @@ export function CreateDialog({
     },
   })
 
+  const resetToDefaultValues = () => {
+    form.reset({
+      projectId: '',
+      taskId: '',
+      fromUserId: '',
+      toUserId: '',
+      amount: '',
+    })
+  }
+
+  const handleClose = () => {
+    resetToDefaultValues()
+    onClose()
+  }
+
   const form = useForm<CreateTransactionSchema>({
     resolver: zodResolver(createTransactionSchema),
     defaultValues: {
-      projectId: undefined,
-      taskId: undefined,
-      fromUserId: undefined,
-      toUserId: undefined,
-      amount: undefined,
+      projectId: '',
+      taskId: '',
+      fromUserId: '',
+      toUserId: '',
+      amount: '',
     },
   })
 
-  const onSubmit = (data: CreateTransactionSchema) => {
-    const parsedData = {
-      ...data,
-      projectId:
-        data.projectId === undefined ? undefined : Number(data.projectId),
-      taskId: data.taskId === undefined ? undefined : Number(data.taskId),
-      fromUserId:
-        data.fromUserId === undefined ? undefined : Number(data.fromUserId),
-      toUserId: Number(data.toUserId),
-      amount: Number(data.amount),
-    }
-
-    try {
-      createTransactionSchema.parse(parsedData)
+  const onSubmit = (values: CreateTransactionSchema) => {
+    const checkedData = createTransactionSchema.safeParse(values)
+    if (checkedData.success) {
+      const data = checkedData.data
+      const parsedData: CreateTransactionDto = {
+        projectId: data.projectId !== '' ? Number(data.projectId) : undefined,
+        toUserId: Number(data.toUserId),
+        fromUserId:
+          data.fromUserId !== '' ? Number(data.fromUserId) : undefined,
+        amount: Number(data.amount),
+        taskId: data.taskId !== '' ? Number(data.taskId) : undefined,
+      }
       console.log('Submitting new transaction:', parsedData)
       mutate({ params: parsedData })
       onClose()
-    } catch (err) {
-      console.error('Validation failed:', err)
+    } else {
+      toast({
+        variant: 'destructive',
+        title: 'Uh oh! Transaction data is invalid',
+      })
     }
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create New Transaction</DialogTitle>
@@ -133,13 +148,7 @@ export function CreateDialog({
                     <Input
                       type='text'
                       {...field}
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value === ''
-                            ? undefined
-                            : Number(e.target.value)
-                        )
-                      }
+                      onChange={(e) => field.onChange(e.target.value)}
                     />
                   </FormControl>
                   <FormMessage />
@@ -156,13 +165,7 @@ export function CreateDialog({
                     <Input
                       type='text'
                       {...field}
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value === ''
-                            ? undefined
-                            : Number(e.target.value)
-                        )
-                      }
+                      onChange={(e) => field.onChange(e.target.value)}
                     />
                   </FormControl>
                   <FormMessage />
@@ -179,13 +182,7 @@ export function CreateDialog({
                     <Input
                       type='text'
                       {...field}
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value === ''
-                            ? undefined
-                            : Number(e.target.value)
-                        )
-                      }
+                      onChange={(e) => field.onChange(e.target.value)}
                     />
                   </FormControl>
                   <FormMessage />
@@ -202,7 +199,7 @@ export function CreateDialog({
                     <Input
                       type='text'
                       {...field}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
+                      onChange={(e) => field.onChange(e.target.value)}
                     />
                   </FormControl>
                   <FormMessage />
@@ -219,7 +216,7 @@ export function CreateDialog({
                     <Input
                       type='text'
                       {...field}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
+                      onChange={(e) => field.onChange(e.target.value)}
                     />
                   </FormControl>
                   <FormMessage />
@@ -227,6 +224,13 @@ export function CreateDialog({
               )}
             />
             <DialogFooter>
+              <Button
+                variant='ghost'
+                type='button'
+                onClick={resetToDefaultValues}
+              >
+                Reset to default
+              </Button>
               <Button type='submit'>Create Transaction</Button>
             </DialogFooter>
           </form>
