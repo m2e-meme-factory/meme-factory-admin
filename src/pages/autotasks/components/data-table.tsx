@@ -76,8 +76,8 @@ export function DataTable<TData, TValue>({
           sortBy: sorting.map((s) => s.id),
           sortOrder: sorting.map((s) => (s.desc ? 'desc' : 'asc')),
           isIntegrated:
-            integratedFilter && typeof integratedFilter.value === 'boolean'
-              ? integratedFilter.value
+            integratedFilter && typeof integratedFilter.value === 'string'
+              ? integratedFilter.value === 'true'
               : undefined,
           title:
             titleFilter && typeof titleFilter.value === 'string'
