@@ -3,7 +3,6 @@ import { Button } from '@/components/custom/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -12,8 +11,12 @@ import {
 import { useAuth } from '@/hooks/use-auth.ts'
 
 export function UserNav() {
-  const { logOut, user, email } = useAuth()
-  console.log(user, email)
+  const { logOut, email } = useAuth()
+
+  const handleLogout = () => {
+    logOut()
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -26,28 +29,12 @@ export function UserNav() {
       </DropdownMenuTrigger>
       <DropdownMenuContent className='w-56' align='end' forceMount>
         <DropdownMenuLabel className='font-normal'>
-          {user !== null && email !== null ? (
-            <div className='flex flex-col space-y-1'>
-              <p className='text-sm font-medium leading-none'>
-                {user.username}
-              </p>
-              <p className='text-xs leading-none text-muted-foreground'>
-                {email}
-              </p>
-            </div>
-          ) : (
-            <div className='flex flex-col space-y-1'>
-              <p className='text-sm font-medium leading-none'>null</p>
-            </div>
-          )}
+          <div className='flex flex-col space-y-1'>
+            <p className='text-sm font-medium leading-none'>{email}</p>
+          </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <DropdownMenuItem>Profile</DropdownMenuItem>
-          <DropdownMenuItem>Settings</DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => logOut}>Log out</DropdownMenuItem>
+        <DropdownMenuItem onClick={handleLogout}>Log out</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )

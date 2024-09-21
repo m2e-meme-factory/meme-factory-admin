@@ -42,7 +42,10 @@ api.interceptors.response.use(
           originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
           return axios(originalRequest)
         } catch (error) {
-          //todo: re-authenticate the user by again login and update both the access and refresh tokens.
+          localStorage.removeItem('accessToken')
+          localStorage.removeItem('refreshToken')
+          localStorage.removeItem('email')
+          window.location.href = '/sign-in'
         }
       }
     }

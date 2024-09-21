@@ -1,14 +1,11 @@
-import { createContext, useState, ReactNode, useEffect } from 'react'
+import { createContext, useState, ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
 import { login } from '@/data/requests/auth/auth-login.ts'
-import { UserInterface } from '@/pages/users/data/schema.ts'
-import { getUser } from '@/data/requests/user/get-specified-user.ts'
 import { SignInDto } from '@/types/api'
 
 export interface AuthContextType {
   token: string
-  user: UserInterface | null
   loginAction: (data: SignInDto) => void
   logOut: () => void
   email: string | null
@@ -17,12 +14,12 @@ export interface AuthContextType {
 export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<UserInterface | null>(null)
-  const [userId, setUserId] = useState<number | null>(null)
   const [token, setToken] = useState<string | null>(
     localStorage.getItem('accessToken')
   )
-  const [email, setEmail] = useState<string | null>(null)
+  const [email, setEmail] = useState<string | null>(
+    localStorage.getItem('email')
+  )
   const navigate = useNavigate()
 
   const loginMutation = useMutation({
@@ -31,8 +28,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.log('Successfully logged in: ', data)
       localStorage.setItem('accessToken', data.data.accessToken)
       localStorage.setItem('refreshToken', data.data.refreshToken)
+      localStorage.setItem('email', data.data.userAdmin.email)
       setEmail(data.data.userAdmin.email)
-      setUserId(data.data.userAdmin.id)
       setToken(data.data.accessToken)
       navigate('/dashboard')
     },
@@ -47,34 +44,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }
 
   const logOut = () => {
-    setUserId(null)
-    setUser(null)
     setToken(null)
     localStorage.removeItem('accessToken')
     localStorage.removeItem('refreshToken')
-    navigate('/login')
+    localStorage.removeItem('email')
+    navigate('/sign-in')
   }
-
-  useEffect(() => {
-    const fetchUserData = async () => {
-      if (token && userId) {
-        try {
-          const response = await getUser({ params: { id: userId } })
-          if (response.data) {
-            setUser(response.data)
-          }
-        } catch (error) {
-          console.error('Failed to fetch user data:', error)
-        }
-      }
-    }
-
-    fetchUserData()
-  }, [token, userId])
 
   return (
     <AuthContext.Provider
-      value={{ token: token || '', user, loginAction, logOut, email }}
+      value={{ token: token || '', loginAction, logOut, email }}
     >
       {children}
     </AuthContext.Provider>
