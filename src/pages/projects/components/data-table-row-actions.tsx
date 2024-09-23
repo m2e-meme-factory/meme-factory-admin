@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { ProjectSchema } from '@/pages/projects/data/schema.ts'
+import { useNavigate } from 'react-router-dom'
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>
@@ -18,6 +19,7 @@ export function DataTableRowActions<TData>({
   row,
 }: DataTableRowActionsProps<TData>) {
   const project = ProjectSchema.parse(row.original)
+  const navigate = useNavigate()
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -30,7 +32,9 @@ export function DataTableRowActions<TData>({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align='end' className='w-[160px]'>
-        <DropdownMenuItem>View project {project.id}</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => navigate(`${project.id}`)}>
+          View project {project.id}
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )
