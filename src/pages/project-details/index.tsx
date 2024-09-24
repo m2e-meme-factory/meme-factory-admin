@@ -18,7 +18,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Textarea } from '@/components/ui/textarea'
 import { Layout } from '@/components/custom/layout.tsx'
 import ThemeSwitch from '@/components/theme-switch.tsx'
 import { UserNav } from '@/components/user-nav.tsx'
@@ -36,7 +35,7 @@ import { IconChevronRight } from '@tabler/icons-react'
 import TaskTable from '@/pages/project-details/components/tasks-table.tsx'
 import { useQuery } from '@tanstack/react-query'
 import { getProject } from '@/data/requests/project/get-specified-project.ts'
-import { useEffect, useState } from 'react'
+import { ChangeEvent, useEffect, useRef, useState } from 'react'
 import {
   ProjectInterface,
   ProjectStatus,
@@ -53,6 +52,12 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form.tsx'
+import { MultiSelect } from '@/pages/project-details/components/multiple-select.tsx'
+import 'quill/dist/quill.bubble.css'
+import { useQuill } from 'react-quilljs'
+import { extractFileNameAndExtension } from '@/lib/utils.ts'
+import { useToast } from '@/components/ui/use-toast.ts'
+import { CreateTaskDto, PatchProjectDto } from '@/types/api'
 
 const editProjectSchema = z.object({
   title: z.string().min(1, 'Title must be at least 1 character long'),
@@ -71,6 +76,22 @@ type EditProjectSchema = z.infer<typeof editProjectSchema>
 function ProjectDetails() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { toast } = useToast()
+
+  const bannerInputRef = useRef<HTMLInputElement | null>(null)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
+
+  const { quill, quillRef } = useQuill({
+    theme: 'bubble',
+    modules: {
+      toolbar: [
+        ['bold', 'italic', 'underline'],
+        [{ header: 1 }, { header: 2 }, { header: 3 }, { header: 4 }],
+        [{ list: 'ordered' }, { list: 'bullet' }],
+        ['link', 'image'],
+      ],
+    },
+  })
 
   const BREADCRUMBS_ITEMS = [
     { title: 'Home', href: '/' },
@@ -116,8 +137,13 @@ function ProjectDetails() {
   })
 
   const [project, setProject] = useState<ProjectInterface | null>(null)
+  const [currentFiles, setCurrentFiles] = useState<string[]>([])
+  const [currentProjectStatus, setCurrentProjectStatus] =
+    useState<ProjectStatus | null>()
+  const [currentBannerUrl, setCurrentBannerUrl] = useState<string | null>()
   const [tasksData, setTasksData] = useState<ProjectTaskData[]>([])
   const [deletedTasks, setDeletedTasks] = useState<number[]>([])
+  const [editedTasks, setEditedTasks] = useState<number[]>([])
 
   useEffect(() => {
     if (data) {
@@ -126,11 +152,21 @@ function ProjectDetails() {
     }
   }, [data])
 
+  useEffect(() => {
+    if (quill && project) {
+      quill.root.innerHTML = project.description || ''
+    }
+  }, [quill, project])
+
   const addDeletedTask = (deletedTaskId: number) => {
     setDeletedTasks([deletedTaskId, ...deletedTasks])
   }
 
-  console.log(project)
+  const addEditedTask = (editedTaskId: number) => {
+    if (!editedTasks.includes(editedTaskId)) {
+      setEditedTasks([editedTaskId, ...editedTasks])
+    }
+  }
 
   const form = useForm<EditProjectSchema>({
     resolver: zodResolver(editProjectSchema),
@@ -144,6 +180,14 @@ function ProjectDetails() {
   })
 
   useEffect(() => {
+    if (quill) {
+      quill.on('text-change', () => {
+        form.setValue('description', quill.root.innerHTML)
+      })
+    }
+  }, [quill, form])
+
+  useEffect(() => {
     if (project) {
       form.reset({
         title: project.title,
@@ -152,21 +196,116 @@ function ProjectDetails() {
         authorId: project.authorId.toString(),
         tags: project.tags,
       })
+
+      setCurrentBannerUrl(project.bannerUrl)
+      setCurrentFiles(project.files)
+      setCurrentProjectStatus(project.status as ProjectStatus)
     }
   }, [project, form])
 
   const resetToDefaultValues = () => {
-    form.reset({
-      title: project?.title || '',
-      description: project?.description || '',
-      category: project?.category,
-      authorId: project ? project.authorId.toString() : '',
-      tags: project?.tags,
-    })
+    if (project) {
+      form.reset({
+        title: project?.title || '',
+        description: project?.description || '',
+        category: project?.category,
+        authorId: project ? project.authorId.toString() : '',
+        tags: project?.tags,
+      })
+      setCurrentProjectStatus(project.status as ProjectStatus)
+      setCurrentBannerUrl(project.bannerUrl)
+      setCurrentFiles(project.files)
+      setDeletedTasks([])
+      setTasksData(project.tasks?.map((task) => task.task) || [])
+    }
   }
 
-  const onSubmit = () => {
-    console.log('submitted')
+  const handleAddBannerClick = () => {
+    if (bannerInputRef.current) {
+      bannerInputRef.current.click()
+    }
+  }
+
+  const handleBannerChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      setCurrentBannerUrl(file.name)
+    }
+  }
+
+  const handleAddFileClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click()
+    }
+  }
+
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files
+    if (files) {
+      const fileNames: string[] = []
+      for (let i = 0; i < files.length; i++) {
+        const currentFile = files.item(i)
+        if (currentFile) {
+          fileNames.push(currentFile.name)
+        }
+      }
+      setCurrentFiles((prevState) => {
+        const filesToAdd = Array.isArray(fileNames) ? fileNames : [fileNames]
+        const uniqueFiles = filesToAdd.filter(
+          (file) => !prevState.includes(file)
+        )
+        return [...prevState, ...uniqueFiles]
+      })
+    }
+  }
+
+  const handleDeleteFile = (fileToDelete: string) => {
+    setCurrentFiles((prevState) =>
+      prevState.filter((file) => file !== fileToDelete)
+    )
+  }
+
+  const onSubmit = (values: EditProjectSchema) => {
+    const checkedData = editProjectSchema.safeParse(values)
+    if (checkedData.success) {
+      const formData = checkedData.data
+      const newTasks: CreateTaskDto[] = []
+
+      tasksData.forEach((task) => {
+        if (task.id <= 0) {
+          newTasks.push({
+            title: task.title,
+            description: task.description,
+            price: Number(task.price),
+          })
+        } else if (editedTasks.includes(task.id)) {
+          newTasks.push({
+            id: task.id,
+            title: task.title,
+            description: task.description,
+            price: Number(task.price),
+          })
+        }
+      })
+
+      const editedProject: PatchProjectDto = {
+        title: formData.title,
+        description: formData.description,
+        bannerUrl: currentBannerUrl || '',
+        files: currentFiles,
+        tags: formData.tags,
+        category: formData.category,
+        subtasks: newTasks.length > 0 ? newTasks : [],
+        deletedTasks: deletedTasks,
+      }
+
+      console.log(editedProject)
+    } else {
+      toast({
+        variant: 'destructive',
+        title: 'Uh oh! Transaction data is invalid',
+      })
+    }
   }
 
   if (isLoading) {
@@ -215,7 +354,9 @@ function ProjectDetails() {
               >
                 Discard
               </Button>
-              <Button size='sm'>Save Project</Button>
+              <Button onClick={form.handleSubmit(onSubmit)} size='sm'>
+                Save Project
+              </Button>
             </div>
           </div>
 
@@ -256,21 +397,18 @@ function ProjectDetails() {
                       <FormField
                         control={form.control}
                         name='description'
-                        render={({ field }) => (
+                        render={() => (
                           <FormItem>
                             <FormLabel>Description</FormLabel>
                             <FormControl>
-                              <Textarea
-                                className='h-32'
-                                {...field}
-                                onChange={(e) => field.onChange(e.target.value)}
-                              />
+                              <div className='h-fit rounded-md border'>
+                                <div ref={quillRef} />
+                              </div>
                             </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
-
                       <FormField
                         control={form.control}
                         name='category'
@@ -307,34 +445,29 @@ function ProjectDetails() {
                           </FormItem>
                         )}
                       />
-
                       <FormField
                         control={form.control}
                         name='tags'
-                        render={({ field }) => (
+                        render={() => (
                           <FormItem>
                             <FormLabel>Tags</FormLabel>
-                            <Select
-                              onValueChange={field.onChange}
-                              defaultValue={field.value[0]}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder='Select tags' />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value='video'>Video</SelectItem>
-                                <SelectItem value='nft'>NFT</SelectItem>
-                                <SelectItem value='post'>Post</SelectItem>
-                                <SelectItem value='reels'>Reels</SelectItem>
-                              </SelectContent>
-                            </Select>
+                            <FormControl>
+                              <MultiSelect<EditProjectSchema>
+                                name='tags'
+                                control={form.control}
+                                title='Select tags'
+                                options={[
+                                  { label: 'Video', value: 'video' },
+                                  { label: 'NFT', value: 'nft' },
+                                  { label: 'Post', value: 'post' },
+                                  { label: 'Reels', value: 'reels' },
+                                ]}
+                              />
+                            </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
-
                       <FormField
                         control={form.control}
                         name='authorId'
@@ -372,7 +505,7 @@ function ProjectDetails() {
                       className='w-full rounded-md object-cover'
                       src={
                         project
-                          ? `https://api.meme-factory.site${project?.bannerUrl}`
+                          ? `https://api.meme-factory.site${currentBannerUrl}`
                           : ''
                       }
                       style={{ aspectRatio: '16 / 9', objectFit: 'cover' }}
@@ -380,10 +513,22 @@ function ProjectDetails() {
                   </div>
                 </CardContent>
                 <CardFooter className='justify-center border-t p-4'>
-                  <Button size='sm' variant='ghost' className='gap-1'>
+                  <Button
+                    size='sm'
+                    variant='ghost'
+                    className='gap-1'
+                    onClick={handleAddBannerClick}
+                  >
                     <PlusCircle className='h-3.5 w-3.5' />
                     Change banner
                   </Button>
+                  <input
+                    type='file'
+                    ref={bannerInputRef}
+                    className='hidden'
+                    onChange={handleBannerChange}
+                    accept='image/*'
+                  />
                 </CardFooter>
               </Card>
 
@@ -391,6 +536,7 @@ function ProjectDetails() {
               <TaskTable
                 tasks={tasksData}
                 addDeletedTask={addDeletedTask}
+                addEditedTask={addEditedTask}
                 setTasks={setTasksData}
               />
             </div>
@@ -405,13 +551,9 @@ function ProjectDetails() {
                     <div className='grid gap-3'>
                       <Label htmlFor='status'>Status</Label>
                       <Select
-                        value={project?.status}
+                        value={currentProjectStatus as ProjectStatus}
                         onValueChange={(value) =>
-                          setProject((prev) =>
-                            prev
-                              ? { ...prev, status: value as ProjectStatus }
-                              : null
-                          )
+                          setCurrentProjectStatus(value as ProjectStatus)
                         }
                       >
                         <SelectTrigger id='status' aria-label='Select status'>
@@ -452,29 +594,53 @@ function ProjectDetails() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      <TableRow>
-                        <TableCell className='font-semibold'>
-                          <p className='overflow-hidden text-ellipsis'>
-                            long-long-long-long-long-long-long-long-long-name
-                          </p>
-                        </TableCell>
-                        <TableCell>
-                          <p>exe</p>
-                        </TableCell>
-                        <TableCell>
-                          <Button>
-                            <Trash2 className='h-3.5 w-3.5' />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
+                      {currentFiles &&
+                        currentFiles.map((file) => (
+                          <TableRow key={file.slice(0, 36)}>
+                            <TableCell className='font-semibold'>
+                              <p className='overflow-hidden text-ellipsis'>
+                                {extractFileNameAndExtension(file)?.filename ||
+                                  ''}
+                              </p>
+                            </TableCell>
+                            <TableCell>
+                              <p>
+                                {extractFileNameAndExtension(file)?.extension ||
+                                  ''}
+                              </p>
+                            </TableCell>
+                            <TableCell>
+                              <Button
+                                onClick={(event) => {
+                                  event.stopPropagation()
+                                  handleDeleteFile(file)
+                                }}
+                              >
+                                <Trash2 className='h-3.5 w-3.5' />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
                     </TableBody>
                   </Table>
                 </CardContent>
                 <CardFooter className='justify-center border-t p-4'>
-                  <Button size='sm' variant='ghost' className='gap-1'>
+                  <Button
+                    size='sm'
+                    variant='ghost'
+                    className='gap-1'
+                    onClick={handleAddFileClick}
+                  >
                     <PlusCircle className='h-3.5 w-3.5' />
                     Add File
                   </Button>
+                  <input
+                    type='file'
+                    ref={fileInputRef}
+                    className='hidden'
+                    onChange={handleFileChange}
+                    multiple
+                  />
                 </CardFooter>
               </Card>
             </div>

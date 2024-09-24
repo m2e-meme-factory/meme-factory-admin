@@ -36,6 +36,7 @@ import { DeleteTaskDialog } from '@/pages/project-details/components/delete-task
 
 interface TaskTableProps {
   addDeletedTask: (id: number) => void
+  addEditedTask: (id: number) => void
   tasks: ProjectTaskData[]
   setTasks: (newTasks: ProjectTaskData[]) => void
 }
@@ -44,6 +45,7 @@ export default function TaskTable({
   addDeletedTask,
   tasks,
   setTasks,
+  addEditedTask,
 }: TaskTableProps) {
   const [selectedTask, setSelectedTask] = useState<ProjectTaskData | null>(null)
   const [isDescriptionModalOpen, setIsDescriptionModalOpen] = useState(false)
@@ -53,6 +55,7 @@ export default function TaskTable({
 
   const handleEdit = (task: ProjectTaskData) => {
     setSelectedTask(task)
+    addEditedTask(task.id)
     setIsEditModalOpen(true)
   }
 
@@ -79,6 +82,7 @@ export default function TaskTable({
     if (newTask) {
       setTasks([...tasks, newTask])
     }
+    setCreateDialogOpen(false)
   }
 
   return (
@@ -102,7 +106,7 @@ export default function TaskTable({
             <TableBody>
               {tasks.map((task) => (
                 <TableRow key={task.id}>
-                  <TableCell>{task.id}</TableCell>
+                  <TableCell>{Number(task.id) > 0 ? task.id : 'new'}</TableCell>
                   <TableCell>{task.title}</TableCell>
                   <TableCell>
                     <button
@@ -178,7 +182,7 @@ export default function TaskTable({
           onClick={() => setCreateDialogOpen(true)}
         >
           <PlusCircle className='h-3.5 w-3.5' />
-          Add Variant
+          Add Task
         </Button>
       </CardFooter>
       <CreateTaskDialog

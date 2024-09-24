@@ -20,3 +20,29 @@ export const createQueryParams = (params: Record<string, unknown>): string => {
 
   return searchParams.toString() ? `?${searchParams.toString()}` : ''
 }
+
+export function extractFileNameAndExtension(input: string) {
+  const uuidLength = 36
+
+  if (!input || input.trim().length === 0) {
+    return null
+  }
+
+  let fileNameWithExt = input
+  if (input.length > uuidLength && input[uuidLength] === '_') {
+    fileNameWithExt = input.slice(uuidLength + 1) // Убираем UUID и '_'
+  }
+
+  const lastDotIndex = fileNameWithExt.lastIndexOf('.')
+  if (lastDotIndex === -1) {
+    return null
+  }
+
+  const filename = fileNameWithExt.slice(0, lastDotIndex)
+  const extension = fileNameWithExt.slice(lastDotIndex + 1)
+
+  return {
+    filename,
+    extension,
+  }
+}

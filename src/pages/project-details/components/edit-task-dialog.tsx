@@ -24,13 +24,13 @@ import { ProjectTaskData } from '@/pages/projects/data/schema.ts'
 import { Textarea } from '@/components/ui/textarea.tsx'
 
 const editTaskSchema = z.object({
-  id: z.string().regex(/^$|^[1-9][0-9]*$/),
-  title: z.string().min(1, 'Title must be at least 1 character1 long'),
+  id: z.string().regex(/^$|^-?[1-9][0-9]*$/),
+  title: z.string().min(1, 'Title must be at least 1 character long'),
   description: z
     .string()
-    .min(1, 'Description must be at least 1 character1 long'),
-  price: z.string().regex(/^$[1-9][0-9]*$/, {
-    message: 'Price must be a number starting from 1',
+    .min(1, 'Description must be at least 1 character long'),
+  price: z.string().regex(/^[1-9][0-9]*$/, {
+    message: 'Price must be a number',
   }),
 })
 

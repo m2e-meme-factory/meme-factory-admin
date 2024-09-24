@@ -198,6 +198,7 @@ export interface DeleteProjectProgressParam {
 
 // [CREATE] /projects
 export interface CreateTaskDto {
+  id?: number
   title: string
   description: string
   price: number
