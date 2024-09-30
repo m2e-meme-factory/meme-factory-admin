@@ -33,7 +33,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { Breadcrumb, BreadcrumbItem } from '@/components/custom/breadcrumb.tsx'
 import { IconChevronRight } from '@tabler/icons-react'
 import TaskTable from '@/pages/project-details/components/tasks-table.tsx'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { getProject } from '@/data/requests/project/get-specified-project.ts'
 import { ChangeEvent, useEffect, useRef, useState } from 'react'
 import {
@@ -57,7 +57,13 @@ import 'quill/dist/quill.bubble.css'
 import { useQuill } from 'react-quilljs'
 import { extractFileNameAndExtension } from '@/lib/utils.ts'
 import { useToast } from '@/components/ui/use-toast.ts'
-import { CreateTaskDto, PatchProjectDto } from '@/types/api'
+import {
+  CreateTaskDto,
+  EditProjectStatusPayload,
+  PatchProjectDto,
+} from '@/types/api'
+import { editProject } from '@/data/requests/project/edit-project.ts'
+import { editProjectStatus } from '@/data/requests/project/edit-project-status.ts'
 
 const editProjectSchema = z.object({
   title: z.string().min(1, 'Title must be at least 1 character long'),
@@ -77,7 +83,7 @@ function ProjectDetails() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { toast } = useToast()
-
+  const queryClient = useQueryClient()
   const bannerInputRef = useRef<HTMLInputElement | null>(null)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
 
@@ -134,6 +140,38 @@ function ProjectDetails() {
       }
     },
     refetchOnWindowFocus: 'always',
+  })
+
+  const projectMutation = useMutation({
+    mutationFn: editProject,
+    onSuccess: () => {
+      toast({
+        variant: 'default',
+        title: 'Project updated',
+      })
+    },
+    onError: () => {
+      toast({
+        variant: 'destructive',
+        title: 'Uh oh! Something went wrong.',
+      })
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['project', id] })
+    },
+  })
+
+  const projectStatusMutation = useMutation({
+    mutationFn: editProjectStatus,
+    onError: () => {
+      toast({
+        variant: 'destructive',
+        title: 'Uh oh! Something went wrong.',
+      })
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['project', id] })
+    },
   })
 
   const [project, setProject] = useState<ProjectInterface | null>(null)
@@ -299,7 +337,21 @@ function ProjectDetails() {
         deletedTasks: deletedTasks,
       }
 
-      console.log(editedProject)
+      if (currentProjectStatus && currentProjectStatus !== project?.status) {
+        const editedStatus: EditProjectStatusPayload = {
+          status: currentProjectStatus as ProjectStatus,
+        }
+        projectStatusMutation.mutate({
+          params: {
+            projectId: Number(id),
+            payload: editedStatus,
+          },
+        })
+
+        projectMutation.mutate({
+          params: { id: Number(id), patchProjectDto: editedProject },
+        })
+      }
     } else {
       toast({
         variant: 'destructive',

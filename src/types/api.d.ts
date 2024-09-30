@@ -215,6 +215,16 @@ export interface CreateProjectDto {
   subtasks: CreateTaskDto[]
 }
 
+// [PUT] /project/{id}/status
+export interface EditProjectStatusParams {
+  projectId: number
+  payload: EditProjectStatusPayload
+}
+
+export interface EditProjectStatusPayload {
+  status: ProjectStatus
+}
+
 // [GET] /projects
 export interface GetProjectsResponse {
   projects: ProjectInterface[]
